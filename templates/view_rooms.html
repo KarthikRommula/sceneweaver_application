@@ -7,14 +7,176 @@
     <title>Booked Rooms</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles4.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        /* Modal styles */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+        }
+        .modal-content {
+            background-color: #fff;
+            margin: 15% auto;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 500px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            position: relative;
+        }
+        .close-btn {
+            position: absolute;
+            right: 15px;
+            top: 10px;
+            font-size: 24px;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .room-info {
+            background-color: #f5f5f5;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 15px 0;
+        }
+        .modal input {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            box-sizing: border-box;
+        }
+        .modal-buttons {
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+            margin-top: 15px;
+        }
+        .modal-buttons button {
+            padding: 8px 15px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .modal-buttons button:first-child {
+            background-color: #f1f1f1;
+        }
+        .modal-buttons button:last-child {
+            background-color: #dc3545;
+            color: white;
+        }
+        .error-message {
+            color: #dc3545;
+            margin-top: 10px;
+            font-size: 14px;
+            display: none;
+        }
+        .release-btn {
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        /* Toast notification styles */
+        #toast-container {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        .toast {
+            background-color: #4CAF50;
+            color: white;
+            padding: 15px 20px;
+            border-radius: 5px;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            animation: slide-in 0.5s ease-out;
+            max-width: 300px;
+        }
+        .toast.error {
+            background-color: #f44336;
+        }
+        .toast.fade-out {
+            animation: fade-out 0.5s ease-out forwards;
+        }
+        @keyframes slide-in {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes fade-out {
+            from { opacity: 1; }
+            to { opacity: 0; }
+        }
+        
+        /* Responsive button styles */
+        .button-container {
+            display: flex;
+            flex-direction: row;
+            gap: 10px;
+            justify-content: center;
+        }
+        
+        .view-btn, .release-btn {
+            flex: 1;
+            min-width: 90px;
+            white-space: nowrap;
+            padding: 8px 12px;
+            border-radius: 4px;
+            font-size: 14px;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+        }
+        
+        .view-btn {
+            background-color: #000;
+            color: white;
+        }
+        
+        .release-btn {
+            background-color: #dc3545;
+            color: white;
+        }
+        
+        /* Media queries for responsive buttons */
+        @media only screen and (max-width: 768px) {
+            .button-container {
+                flex-direction: column;
+                gap: 5px;
+            }
+            
+            .view-btn, .release-btn {
+                width: 100%;
+                padding: 8px 5px;
+                font-size: 12px;
+            }
+        }
+        
+        @media only screen and (max-width: 480px) {
+            .view-btn, .release-btn {
+                font-size: 11px;
+                padding: 6px 4px;
+            }
+        }
+        
+        /* Removed loading spinner styles */
+    </style>
 </head>
 
 <body>
     <header>
-        <h1 onclick="showLoadingSpinner(); setTimeout(function() { location.reload(); }, 100);">Scene Weaver</h1>
+        <h1 onclick="location.reload();">Scene Weaver</h1>
         <nav>
             <!-- Button styled as a Squarespace icon -->
-            <button id="backButton" class="icon-btn" onclick="showLoadingSpinner()">
+            <button id="backButton" class="icon-btn">
                 <i class="fa-solid fa-angle-left"></i>
             </button>
 
@@ -35,10 +197,10 @@
                 <td>{{ room[0] }}</td>
                 <td>{{ room[1] }}</td>
                 <td>
-                    <!-- Button to release the room -->
-                    <form action="{{ url_for('release_room', room_code=room[0]) }}" method="GET">
-                        <button type="submit">Release Room</button>
-                    </form>
+                    <div class="button-container">
+                        <button class="view-btn" onclick="showRoomPasswordModal('{{ room[0] }}')">View Room</button>
+                        <button class="release-btn" onclick="showReleaseModal('{{ room[0] }}', '{{ room[1] }}')">Release Room</button>
+                    </div>
                 </td>
             </tr>
             {% else %}
@@ -48,9 +210,49 @@
             {% endfor %}
         </tbody>
     </table>
-    <div id="loadingSpinner" class="loading-spinner" style="display: none;">
-        <i class="fa-solid fa-spinner"></i>
+    <!-- Password modal for room release -->
+    <div id="releaseModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeReleaseModal()">&times;</span>
+            <h2>Release Room</h2>
+            <p>Please enter the host password to release this room:</p>
+            <div class="room-info">
+                <p><strong>Room Code:</strong> <span id="modalRoomCode"></span></p>
+                <p><strong>Genre:</strong> <span id="modalRoomGenre"></span></p>
+            </div>
+            <input type="password" id="releasePassword" placeholder="Enter host password">
+            <input type="hidden" id="csrfToken" name="csrf_token">
+            <div class="modal-buttons">
+                <button onclick="closeReleaseModal()">Cancel</button>
+                <button onclick="confirmReleaseRoom()">Release Room</button>
+            </div>
+            <p id="passwordError" class="error-message"></p>
+        </div>
     </div>
+
+    <!-- Password modal for viewing room -->
+    <div id="roomPasswordModal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeRoomPasswordModal()">&times;</span>
+            <h2>Enter Room Password</h2>
+            <div class="room-info">
+                <p><strong>Room Code:</strong> <span id="viewRoomCode"></span></p>
+            </div>
+            <p>Please enter your information to access this room:</p>
+            <input type="text" id="roomUsername" placeholder="Your name" required>
+            <input type="password" id="roomPassword" placeholder="Room password" required>
+            <div id="roomPasswordError" class="error-message"></div>
+            <div class="modal-buttons">
+                <button onclick="closeRoomPasswordModal()">Cancel</button>
+                <button onclick="confirmRoomAccess()">Enter Room</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast notification container -->
+    <div id="toast-container"></div>
+
+
     <footer>
         <p>&copy; 2025 Scene Weaver. All rights reserved.</p>
     </footer>
@@ -59,49 +261,192 @@
     document.getElementById('backButton').addEventListener('click', function () {
         history.back(); // Navigates to the previous page
     });
-    window.addEventListener('beforeunload', function (event) {
-        // Show the loading spinner when the page is unloading (e.g., refresh, navigate away)
-        showLoadingSpinner();
-    });
+    // Removed beforeunload event listener
 
     // Show the loading spinner
-    function showLoadingSpinner() {
-        const spinner = document.getElementById('loadingSpinner');
-        spinner.style.display = 'block';
-        spinner.classList.add('show-spinner'); // Add transition class for smooth appearance
+    // Removed loading spinner functions
 
-        // Set a flag in sessionStorage indicating that loading is in progress
-        sessionStorage.setItem('loading', 'true');
-    }
-
-    // Hide the loading spinner
-    function hideLoadingSpinner() {
-        const spinner = document.getElementById('loadingSpinner');
-        spinner.classList.remove('show-spinner'); // Remove transition class
-        spinner.style.display = 'none'; // Ensure it's hidden
-
-        // Reset loading state in sessionStorage
-        sessionStorage.removeItem('loading');
-    }
-
-    // Clear sessionStorage and hide spinner on page load
+    // Initialize on page load
     window.onload = function () {
-        // If sessionStorage has a loading flag, hide the spinner immediately
-        const loadingState = sessionStorage.getItem('loading');
-        if (loadingState) {
-            hideLoadingSpinner();
-        } else {
-            // Ensure spinner is hidden on initial load if no loading state exists
-            hideLoadingSpinner();
+        // Clear any loading state
+        if (sessionStorage.getItem('loading')) {
+            sessionStorage.removeItem('loading');
         }
+        
+        // Handle Escape key to close modals
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                closeReleaseModal();
+                closeRoomPasswordModal();
+            }
+        });
+        
+        // Handle Enter key in password fields
+        document.getElementById('releasePassword').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                confirmReleaseRoom();
+            }
+        });
+        
+        document.getElementById('roomPassword').addEventListener('keydown', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                confirmRoomAccess();
+            }
+        });
     };
-    // Optional: Make sure the spinner hides immediately after the page loads
+    
+    // Document ready event
     document.addEventListener('DOMContentLoaded', function () {
-        hideLoadingSpinner();
+        // Initialize page
     });
-
-    // Optional: Add setTimeout to ensure spinner hides after a few seconds (for testing)
-    setTimeout(hideLoadingSpinner, 2000); // Hide after 3 seconds for testing
+    
+    // Modal functionality for room release and viewing
+    let currentRoomCode = '';
+    
+    function showReleaseModal(roomCode, genre) {
+        currentRoomCode = roomCode;
+        document.getElementById('modalRoomCode').textContent = roomCode;
+        document.getElementById('modalRoomGenre').textContent = genre;
+        document.getElementById('releasePassword').value = '';
+        document.getElementById('passwordError').style.display = 'none';
+        document.getElementById('releaseModal').style.display = 'block';
+        
+        // Fetch the CSRF token for this room
+        fetch(`/release-room/${roomCode}`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.csrf_token) {
+                document.getElementById('csrfToken').value = data.csrf_token;
+            }
+        })
+        .catch(error => {
+            console.error('Error fetching CSRF token:', error);
+        });
+    }
+    
+    function showRoomPasswordModal(roomCode) {
+        currentRoomCode = roomCode;
+        document.getElementById('viewRoomCode').textContent = roomCode;
+        document.getElementById('roomPassword').value = '';
+        document.getElementById('roomPasswordError').style.display = 'none';
+        document.getElementById('roomPasswordModal').style.display = 'block';
+    }
+    
+    function closeReleaseModal() {
+        document.getElementById('releaseModal').style.display = 'none';
+    }
+    
+    function closeRoomPasswordModal() {
+        document.getElementById('roomPasswordModal').style.display = 'none';
+    }
+    
+    function confirmReleaseRoom() {
+        const password = document.getElementById('releasePassword').value.trim();
+        const csrfToken = document.getElementById('csrfToken').value;
+        
+        if (!password) {
+            document.getElementById('passwordError').textContent = 'Please enter the host password';
+            document.getElementById('passwordError').style.display = 'block';
+            return;
+        }
+        
+        // Send request to release the room with password and CSRF token
+        fetch(`/release-room/${currentRoomCode}`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                password: password,
+                csrf_token: csrfToken
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                document.getElementById('passwordError').textContent = data.error;
+                document.getElementById('passwordError').style.display = 'block';
+            } else {
+                closeReleaseModal();
+                showToast(data.message);
+                // Reload the page after a short delay to refresh the room list
+                setTimeout(() => {
+                    location.reload();
+                }, 1500);
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            document.getElementById('passwordError').textContent = 'An error occurred. Please try again.';
+            document.getElementById('passwordError').style.display = 'block';
+        });
+    }
+    
+    function confirmRoomAccess() {
+        const password = document.getElementById('roomPassword').value.trim();
+        if (!password) {
+            document.getElementById('roomPasswordError').textContent = 'Please enter the room password';
+            document.getElementById('roomPasswordError').style.display = 'block';
+            return;
+        }
+        
+        // Submit the password to the server for verification
+        // This will redirect to the room page with proper authentication
+        const form = document.createElement('form');
+        form.method = 'POST';
+        form.action = `/room/${currentRoomCode}`;
+        
+        // Add password field
+        const passwordField = document.createElement('input');
+        passwordField.type = 'hidden';
+        passwordField.name = 'password';
+        passwordField.value = password;
+        form.appendChild(passwordField);
+        
+        // Add username field if available
+        const username = document.getElementById('roomUsername').value.trim();
+        if (username) {
+            const usernameField = document.createElement('input');
+            usernameField.type = 'hidden';
+            usernameField.name = 'username';
+            usernameField.value = username;
+            form.appendChild(usernameField);
+        }
+        
+        // Submit the form
+        document.body.appendChild(form);
+        sessionStorage.setItem('redirected', 'true');
+        form.submit();
+    }
+    
+    // Toast notification function
+    function showToast(message, isError = false) {
+        // Check if a toast container already exists
+        let toastContainer = document.getElementById('toast-container');
+        
+        // Create a new toast
+        const toast = document.createElement('div');
+        toast.className = isError ? 'toast error' : 'toast';
+        toast.textContent = message;
+        
+        // Add to container
+        toastContainer.appendChild(toast);
+        
+        // Remove after animation
+        setTimeout(() => {
+            toast.classList.add('fade-out');
+            setTimeout(() => {
+                toastContainer.removeChild(toast);
+            }, 500);
+        }, 3000);
+    }
 
     // Example of async behavior (loading some data)
     async function loadData() {

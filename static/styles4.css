@@ -143,19 +143,6 @@ table td[colspan="3"] {
     transform: scale(1.1); /* Slight zoom effect */
   }
  
-  .loading-spinner {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.5);
-    color: #fff;
-    padding: 10px;
-    border-radius: 10px;
-    font-size: 18px;
-    display: none; /* Initially hidden */
-    z-index: 9999; /* Ensure it appears above other elements */
-}
 footer {
     background-color: black;
     color: #fff;

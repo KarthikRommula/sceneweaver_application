@@ -11,7 +11,7 @@
 
 <body>
     <header>
-        <h1 onclick="showLoadingSpinner(); setTimeout(function() { location.reload(); }, 100);">Scene Weaver</h1>
+        <h1 onclick="location.reload();">Scene Weaver</h1>
         <nav>
             <!-- Button styled as a Squarespace icon -->
             <a href="{{ url_for('view_rooms') }}" onclick="showLoadingSpinner()">
@@ -58,67 +58,6 @@
     <footer>
         <p>&copy; 2025 Scene Weaver. All rights reserved.</p>
     </footer>
-
     <script src="{{ url_for('static', filename='script.js') }}"></script>
-    <div id="loadingSpinner" class="loading-spinner" style="display: none;">
-        <i class="fa-solid fa-spinner"></i>
-    </div>
 </body>
-<script>
-    window.addEventListener('beforeunload', function (event) {
-        // Show the loading spinner when the page is unloading (e.g., refresh, navigate away)
-        showLoadingSpinner();
-    });
-
-    // Show the loading spinner
-    function showLoadingSpinner() {
-        const spinner = document.getElementById('loadingSpinner');
-        spinner.style.display = 'block';
-        spinner.classList.add('show-spinner'); // Add transition class for smooth appearance
-
-        // Set a flag in sessionStorage indicating that loading is in progress
-        sessionStorage.setItem('loading', 'true');
-    }
-
-    // Hide the loading spinner
-    function hideLoadingSpinner() {
-        const spinner = document.getElementById('loadingSpinner');
-        spinner.classList.remove('show-spinner'); // Remove transition class
-        spinner.style.display = 'none'; // Ensure it's hidden
-
-        // Reset loading state in sessionStorage
-        sessionStorage.removeItem('loading');
-    }
-
-    // Clear sessionStorage and hide spinner on page load
-    window.onload = function () {
-        // Reset loading state and hide spinner immediately when the home page is loaded
-        if (sessionStorage.getItem('loading')) {
-            sessionStorage.removeItem('loading');  // Remove loading state if exists
-        }
-
-        hideLoadingSpinner();  // Make sure spinner is hidden on page load
-    };
-
-    // Optional: Make sure the spinner hides immediately after the page loads
-    document.addEventListener('DOMContentLoaded', function () {
-        hideLoadingSpinner();
-    });
-
-    // Optional: Add setTimeout to ensure spinner hides after a few seconds (for testing)
-    setTimeout(hideLoadingSpinner, 2000); // Hide after 3 seconds for testing
-
-    // Example of async behavior (loading some data)
-    async function loadData() {
-        showLoadingSpinner();  // Show spinner when loading starts
-
-        // Simulate data loading (API or other async action)
-        await new Promise(resolve => setTimeout(resolve, 1000));  // Simulate 2 seconds of delay
-
-        hideLoadingSpinner();  // Hide spinner after loading is complete
-    }
-
-</script>
-
-
 </html>

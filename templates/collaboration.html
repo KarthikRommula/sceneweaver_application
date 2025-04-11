@@ -3,20 +3,106 @@
 
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Room - {{ room_code }}</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='styles3.css') }}">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+   
+        
+        /* Host message styles */
+        .host-message {
+            background-color: #fff8e1;
+            border-left: 4px solid #ffc107;
+            padding: 10px 15px;
+            margin: 10px 0;
+            border-radius: 5px;
+            line-height: 1.5;
+        }
+        .host-password {
+            font-family: monospace;
+            font-weight: bold;
+            letter-spacing: 1px;
+            background-color: #f5f5f5;
+            padding: 2px 5px;
+            border-radius: 3px;
+        }
+        /* Removed loading spinner styles */
+        /* Room ended modal styles */
+        .room-ended-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+        }
+        .room-ended-modal {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            max-width: 400px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            animation: fade-in 0.5s ease-out;
+        }
+        .room-ended-icon {
+            font-size: 48px;
+            color: #dc3545;
+            margin-bottom: 15px;
+        }
+        .room-ended-modal h2 {
+            color: #dc3545;
+            margin-top: 0;
+            font-size: 28px;
+        }
+        .room-ended-modal p {
+            font-size: 18px;
+            margin: 15px 0;
+            color: #333;
+        }
+        .countdown {
+            font-size: 16px;
+            color: #666;
+            margin: 10px 0;
+        }
+        #countdown-timer {
+            font-weight: bold;
+            color: #dc3545;
+        }
+        .room-ended-modal button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 5px;
+            cursor: pointer;
+            margin-top: 15px;
+            font-size: 16px;
+            transition: background-color 0.3s;
+            font-weight: bold;
+        }
+        .room-ended-modal button:hover {
+            background-color: #0056b3;
+        }
+        @keyframes fade-in {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+    </style>
 </head>
 
 <body>
     <header>
-        <h1 onclick="showLoadingSpinner(); setTimeout(function() { location.reload(); }, 100);">Scene Weaver</h1>
+        <h1 onclick="location.reload();">Scene Weaver</h1>
         <nav>
             <!-- Button styled as a Squarespace icon -->
-            <a href="{{ url_for('view_rooms') }}" onclick="showLoadingSpinner()">
+            <a href="{{ url_for('view_rooms') }}">
                 <button class="icon-btn">
                     <i class="fa-brands fa-squarespace fa-lg"></i>
                 </button>
@@ -65,69 +151,58 @@
 
         </div>
     </div>
-    <div id="loadingSpinner" class="loading-spinner" style="display: none;">
-        <i class="fa-solid fa-spinner"></i>
-    </div>
+
 
 
     <script>
-          window.addEventListener('beforeunload', function (event) {
-        // Show the loading spinner when the page is unloading (e.g., refresh, navigate away)
-        showLoadingSpinner();
-    });
+          // Removed beforeunload event listener
 
-    // Show the loading spinner
-    function showLoadingSpinner() {
-        const spinner = document.getElementById('loadingSpinner');
-        spinner.style.display = 'block';
-        spinner.classList.add('show-spinner'); // Add transition class for smooth appearance
+    // Loading spinner functions removed
 
-        // Set a flag in sessionStorage indicating that loading is in progress
-        sessionStorage.setItem('loading', 'true');
-    }
-
-    // Hide the loading spinner
-    function hideLoadingSpinner() {
-        const spinner = document.getElementById('loadingSpinner');
-        spinner.classList.remove('show-spinner'); // Remove transition class
-        spinner.style.display = 'none'; // Ensure it's hidden
-
-        // Reset loading state in sessionStorage
-        sessionStorage.removeItem('loading');
-    }
-
-    // Clear sessionStorage and hide spinner on page load
-    window.onload = function () {
-        // Reset loading state and hide spinner immediately when the home page is loaded
-        if (sessionStorage.getItem('loading')) {
-            sessionStorage.removeItem('loading');  // Remove loading state if exists
+    // Initialize socket connection and variables with reconnection handling
+        const socket = io({
+            reconnection: true,
+            reconnectionDelay: 1000,
+            reconnectionDelayMax: 5000,
+            reconnectionAttempts: 5
+        });
+        
+        // Track if we've already loaded messages to prevent duplicates
+        let messagesLoaded = false;
+        
+        // Make username globally accessible
+        window.username = "{{ username|default('') }}";
+        let username = window.username;
+        // Store CSRF token for secure operations
+        const csrfToken = "{{ csrf_token }}";
+        
+        // Function to ensure chat is scrolled to bottom
+        function scrollChatToBottom() {
+            const chat = document.getElementById("chat");
+            if (chat) {
+                chat.scrollTop = chat.scrollHeight;
+            }
         }
-
-        hideLoadingSpinner();  // Make sure spinner is hidden on page load
-    };
-
-    // Optional: Make sure the spinner hides immediately after the page loads
-    document.addEventListener('DOMContentLoaded', function () {
-        hideLoadingSpinner();
-    });
-
-    // Optional: Add setTimeout to ensure spinner hides after a few seconds (for testing)
-    setTimeout(hideLoadingSpinner, 2000); // Hide after 3 seconds for testing
-
-    // Example of async behavior (loading some data)
-    async function loadData() {
-        showLoadingSpinner();  // Show spinner when loading starts
-
-        // Simulate data loading (API or other async action)
-        await new Promise(resolve => setTimeout(resolve, 1000));  // Simulate 2 seconds of delay
-
-        hideLoadingSpinner();  // Hide spinner after loading is complete
-    }
-
-    // Example of loading data (call loadData() when data is being fetched, like on button click)
-    // loadData(); 
-        const socket = io();
-        let username = "";
+        
+        // Add window resize event to maintain scroll position
+        window.addEventListener('resize', scrollChatToBottom);
+        
+        // Add CSRF token to all socket emissions
+        const originalEmit = socket.emit;
+        socket.emit = function(eventName, data) {
+            // If data is an object, add the CSRF token
+            if (typeof data === 'object' && data !== null) {
+                data.csrf_token = csrfToken;
+            }
+            return originalEmit.apply(this, arguments);
+        };
+        const roomCode = "{{ room_code }}";
+        
+        // Check for stored username in localStorage
+        const storedUsername = localStorage.getItem(`username_${roomCode}`);
+        if (storedUsername && !username) {
+            username = storedUsername;
+        }
 
 
         // Fetching file messages
@@ -140,10 +215,12 @@
             const errorMessage = document.getElementById("invalid-message");
 
             if (username === "") {
-                errorMessage.classList.add("show"); // Show error message
+                errorMessage.style.display = "block"; // Show error message
             } else {
-                errorMessage.classList.remove("show"); // Hide error message
+                errorMessage.style.display = "none"; // Hide error message
+                // Store username both globally and for this specific room
                 localStorage.setItem("username", username);
+                localStorage.setItem(`username_{{ room_code }}`, username);
                 joinRoom();
                 closePopup();
             }
@@ -152,18 +229,39 @@
 
         // Window Load: Handle username and room joining
         window.onload = function () {
-            const savedRoom = localStorage.getItem("room_code");
-            if (savedRoom && savedRoom !== "{{ room_code }}") {
-                localStorage.removeItem("username");
-            }
-
+            // Store current room code for reference
+            localStorage.setItem("room_code", "{{ room_code }}");
+            
+            // First check for URL parameter username
+            const urlParams = new URLSearchParams(window.location.search);
+            const urlUsername = urlParams.get('username');
+            
+            // Then check for room-specific stored username
+            const roomSpecificUsername = localStorage.getItem(`username_{{ room_code }}`);
+            
+            // Then check for general stored username
             const savedUsername = localStorage.getItem("username");
-            if (savedUsername) {
+            
+            // Use username in order of priority
+            if (urlUsername) {
+                username = urlUsername;
+                // Store for future use
+                localStorage.setItem(`username_{{ room_code }}`, username);
+                localStorage.setItem("username", username);
+                joinRoom();
+            } else if (roomSpecificUsername) {
+                username = roomSpecificUsername;
+                joinRoom();
+            } else if (savedUsername) {
                 username = savedUsername;
+                // Also store it for this specific room
+                localStorage.setItem(`username_{{ room_code }}`, savedUsername);
                 joinRoom();
             } else {
                 document.getElementById("name-popup").style.display = "flex";
+                document.getElementById("username-input").focus();
             }
+            
             document.getElementById("message").addEventListener("keydown", function (event) {
                 // Check if the pressed key is the Enter key
                 if (event.key === "Enter") {
@@ -171,13 +269,49 @@
                     sendMessage();  // Call the sendMessage function
                 }
             });
+            
+            // Load chat history
+            fetch(`/room-history/{{ room_code }}`)
+                .then(response => response.json())
+                .then(data => {
+                    const chatHistory = document.getElementById("chat-history");
+                    chatHistory.innerHTML = "";
+                    data.forEach(item => {
+                        // Add messages to history
+                        const entry = document.createElement("div");
+                        entry.className = "chat-bubble";
+                        entry.innerHTML = `<strong>${item.username}:</strong> ${item.message} <span class="timestamp">(${item.timestamp})</span>`;
+                        chatHistory.appendChild(entry);
+                    });
+                })
+                .catch(error => {
+                    console.error("Error fetching chat history:", error);
+                });
         };
 
         // Join the room on successful username input
         function joinRoom() {
             localStorage.setItem("room_code", "{{ room_code }}");
-            socket.emit("join", { username: username, room: "{{ room_code }}" });
-
+            
+            // Store username in localStorage for room-specific persistence
+            localStorage.setItem(`room_${"{{ room_code }}_username"}`, username);
+            
+            // Check if this user might be the host (has stored host password)
+            const hostPassword = localStorage.getItem(`host_password_${"{{ room_code }}"}`);
+            const isHost = hostPassword ? true : false;
+            
+            // Check if this is a rejoin
+            const isRejoin = localStorage.getItem(`joined_${"{{ room_code }}"}`) === 'true';
+            
+            socket.emit("join", { 
+                username: username, 
+                room: "{{ room_code }}",
+                rejoining: isRejoin,  // Indicate if this is a rejoin
+                is_host: isHost   // Tell server if this is the host
+            });
+            
+            // Mark that this user has joined this room
+            localStorage.setItem(`joined_${"{{ room_code }}"}`, 'true');
         }
 
         // Close the popup
@@ -194,11 +328,14 @@
                 errorMessage.classList.add("show"); // Show error message
             } else {
                 errorMessage.classList.remove("show"); // Hide error message
+                
+                // Store username in localStorage with both general and room-specific keys
                 localStorage.setItem("username", username);
+                localStorage.setItem(`room_${"{{ room_code }}_username"}`, username);
+                
                 joinRoom();
                 closePopup();
             }
-
         }
         document.getElementById("username-input").addEventListener("keydown", function (event) {
             if (event.key === "Enter") {
@@ -218,18 +355,50 @@
 
         // Receive messages
         socket.on("message", function (data) {
+            // Check if this is a new message or part of initial load
+            if (data.isInitialLoad && messagesLoaded) {
+                // Skip duplicate messages during reconnection
+                return;
+            }
             appendMessage(data.username, data.message, data.timestamp);
+            
+            // Ensure we're always scrolled to the bottom when new messages arrive
+            setTimeout(scrollChatToBottom, 50);
+        });
+        
+        // Mark messages as loaded when we receive the initial history
+        socket.on("chat_history", function() {
+            messagesLoaded = true;
+            // Ensure chat is scrolled to bottom after history is loaded
+            setTimeout(scrollChatToBottom, 100);
         });
 
         // Append regular messages to chat box with timestamp
         function appendMessage(username, message, timestamp) {
             const chat = document.getElementById("chat");
             const bubble = document.createElement("div");
-            bubble.classList.add("chat-bubble", username === username ? "sent" : "received");
+            
+            // Fix the comparison logic for sent vs received messages
+            const currentUsername = window.username;
+            bubble.classList.add("chat-bubble");
+            if (username === currentUsername) {
+                bubble.classList.add("sent");
+            } else {
+                bubble.classList.add("received");
+            }
+            
+            // Add Genius class if applicable
+            if (username === 'Genius') {
+                bubble.classList.add("genius-chat");
+            }
 
             bubble.innerHTML = `<strong>${username}:</strong> ${message} <span class="timestamp">(${timestamp})</span>`;
             chat.appendChild(bubble);
-            chat.scrollTop = chat.scrollHeight;
+            
+            // Ensure scrolling to bottom happens after the DOM has updated
+            setTimeout(() => {
+                chat.scrollTop = chat.scrollHeight;
+            }, 0);
         }
 
         // Append file messages to chat box with timestamp
@@ -265,27 +434,27 @@
                 historyDiv.innerHTML = "";
                 fetch(`/room-history/{{ room_code }}`)
                     .then((res) => res.json())
-                    .then((history) => {
-                        if (history.length === 0) {
+                    .then((data) => {
+                        const messages = data.messages || [];
+                        if (messages.length === 0) {
                             historyDiv.innerHTML = "<p>No messages in history.</p>";
                         } else {
-                            history.forEach((message) => {
+                            messages.forEach((message) => {
                                 const entry = document.createElement("div");
                                 entry.className = "chat-bubble";
+                                
+                                // Add Genius class if applicable
+                                if (message.username === 'Genius') {
+                                    entry.classList.add("genius-chat");
+                                }
 
-                                // Modify the timestamp to include full date and time in the desired format
-                                const formattedTimestamp = new Date(message.timestamp).toLocaleString('en-US', {
-                                    year: 'numeric',
-                                    month: 'short',  // "Nov"
-                                    day: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    hour12: true,  // AM/PM
-                                });
-
-                                entry.innerHTML = `<strong>${message.username}:</strong> ${message.message} <span class="timestamp">(${formattedTimestamp})</span>`;
+                                // Use the timestamp directly as it's already formatted
+                                entry.innerHTML = `<strong>${message.username}:</strong> ${message.message} <span class="timestamp">${message.timestamp}</span>`;
                                 historyDiv.appendChild(entry);
                             });
+                            
+                            // Scroll to the bottom of the history
+                            historyDiv.scrollTop = historyDiv.scrollHeight;
                         }
                     })
                     .catch((error) => {
@@ -307,6 +476,29 @@
             messageContainer.className = "system-message";
             messageContainer.textContent = `${data.username} has left the room.`;
             document.getElementById("chat").appendChild(messageContainer);
+            
+            // Use setTimeout for consistent scrolling behavior
+            setTimeout(() => {
+                document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
+            }, 0);
+        });
+        
+        // Listen for host credentials if this is the host
+        socket.on("host_credentials", function(data) {
+            // Store the host password in localStorage
+            localStorage.setItem(`host_password_${data.room_code}`, data.password);
+            console.log("Received host credentials");
+            
+            // Show a notification that this user is the host
+            const messageContainer = document.createElement("div");
+            messageContainer.className = "system-message host-message";
+            messageContainer.innerHTML = `<strong>You are the host of this room.</strong><br>Keep your room secure!`;
+            document.getElementById("chat").appendChild(messageContainer);
+            
+            // Use setTimeout for consistent scrolling behavior
+            setTimeout(() => {
+                document.getElementById("chat").scrollTop = document.getElementById("chat").scrollHeight;
+            }, 0);
         });
 
         // File upload handler
@@ -352,11 +544,27 @@
         });
         // Receive the "joined" message event from the server
         socket.on("joined", function (data) {
-            appendSystemMessage(`${data.username} has joined the room.`);
+            if (data.username !== username) {
+                appendSystemMessage(`${data.username} has joined the room.`);
+                // Ensure chat is scrolled to bottom after user joins
+                setTimeout(scrollChatToBottom, 50);
+            }
         });
-        if (data.username !== username) {
-            appendSystemMessage(`${data.username} has joined the room.`);
-        }
+        
+        // Host credentials are already handled by the earlier event listener
+        
+        // Listen for room_ended event
+        socket.on("room_ended", function(data) {
+            // Display a modal or notification that the room has been ended by the host
+            showRoomEndedModal(data.message);
+            
+            // Disable input fields and buttons to prevent further interaction
+            document.getElementById('message').disabled = true;
+            document.querySelector('.send-button').disabled = true;
+            document.getElementById('file-upload').disabled = true;
+            document.querySelector('.file-upload-label').style.opacity = '0.5';
+            document.querySelector('.file-upload-label').style.pointerEvents = 'none';
+        });
 
 
         // Append system messages like user joining
@@ -366,7 +574,53 @@
             systemMessage.classList.add("system-message");
             systemMessage.innerHTML = `<em>${message}</em>`;
             chat.appendChild(systemMessage);
-            chat.scrollTop = chat.scrollHeight;
+            
+            // Ensure scrolling to bottom happens after the DOM has updated
+            setTimeout(() => {
+                chat.scrollTop = chat.scrollHeight;
+            }, 0);
+        }
+        
+        // Function to show room ended modal
+        function showRoomEndedModal(message) {
+            // Create modal overlay
+            const overlay = document.createElement('div');
+            overlay.className = 'room-ended-overlay';
+            
+            // Create modal content
+            const modal = document.createElement('div');
+            modal.className = 'room-ended-modal';
+            
+            // Add content to modal
+            modal.innerHTML = `
+                <div class="room-ended-icon">
+                    <i class="fas fa-door-open"></i>
+                </div>
+                <h2>Room Ended</h2>
+                <p>${message}</p>
+                <div class="countdown">Redirecting in <span id="countdown-timer">10</span> seconds</div>
+                <button onclick="window.location.href='/';">Return to Home Now</button>
+            `;
+            
+            // Add modal to overlay
+            overlay.appendChild(modal);
+            
+            // Add overlay to body
+            document.body.appendChild(overlay);
+            
+            // Start countdown
+            let timeLeft = 10;
+            const countdownTimer = setInterval(() => {
+                timeLeft--;
+                const timerElement = document.getElementById('countdown-timer');
+                if (timerElement) {
+                    timerElement.textContent = timeLeft;
+                }
+                if (timeLeft <= 0) {
+                    clearInterval(countdownTimer);
+                    window.location.href = '/';
+                }
+            }, 1000);
         }
 
         // Handle incoming messages
@@ -394,21 +648,16 @@
             const username = getUsername(); // Get the username of the creator
             socket.emit("end_room", {
                 room: roomCode,
-                username: username
+                username: username,
+                csrf_token: csrfToken
             });
         }
 
-        // Listen for room_ended event
-        socket.on("room_ended", (data) => {
-            alert(data.message); // Show room end message
-            window.location.href = '/'; // Optionally redirect to home page
-        });
+        // This room_ended event listener is redundant - using the one above with modal
 
 
     </script>
+    
 </body>
-<footer>
-    <p>&copy; 2025 Scene Weaver. All rights reserved.</p>
-</footer>
 
 </html>

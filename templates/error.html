@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Error - Scene Weaver</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles2.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        body {
+            background-color: #f8f5f0;
+            font-family: 'poppins', sans-serif;
+        }
+
+        header h1 {
+            letter-spacing: 2px;
+            text-shadow: 2px 2px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .error-container {
+            text-align: center;
+            padding: 32px 0px;
+            max-width: 800px;
+            margin: 40px auto;
+            background-color: white;
+            border-radius: 8px;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+            position: relative;
+            border-left: 5px solid #dc3545;
+        }
+
+        .error-container::before {
+            content: "";
+            position: absolute;
+            top: 0;
+            right: 0;
+            width: 40px;
+            height: 40px;
+            background: linear-gradient(135deg, transparent 50%, #f8f5f0 50%);
+            border-bottom-left-radius: 8px;
+        }
+
+        .error-code {
+            font-size: 72px;
+            color: #dc3545;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            position: relative;
+            display: inline-block;
+        }
+
+        .error-code::after {
+            content: "";
+            position: absolute;
+            bottom: -10px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 60%;
+            height: 3px;
+            background-color: #dc3545;
+        }
+
+        .error-message {
+            font-size: 24px;
+            margin-bottom: 30px;
+            line-height: 1.5;
+            font-family: 'Courier New', monospace;
+            color: #333;
+            padding: 0 20px;
+        }
+
+        .script-details {
+            margin: 30px auto;
+            text-align: left;
+            width: 80%;
+            padding: 15px;
+            border-top: 1px dashed #ccc;
+            border-bottom: 1px dashed #ccc;
+            font-family: 'Courier New', monospace;
+            color: #555;
+        }
+
+        .script-line {
+            margin: 8px 0;
+            line-height: 1.5;
+        }
+
+        .character {
+            font-weight: bold;
+            color: #007bff;
+        }
+
+        .action {
+            font-style: italic;
+            color: #6c757d;
+        }
+
+        .dialogue {
+            margin-left: 40px;
+        }
+
+        .home-button {
+            display: inline-block;
+            padding: 12px 25px;
+            background-color: #007bff;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-weight: bold;
+            transition: all 0.3s;
+            font-family: 'Courier New', monospace;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 20px;
+            border: none;
+            cursor: pointer;
+            box-shadow: 0 3px 5px rgba(0, 0, 0, 0.2);
+        }
+
+        .home-button:hover {
+            background-color: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        footer {
+            background-color: black;
+            color: white;
+            text-align: center;
+            font-size: 14px;
+            padding: 0px 0;
+            /* Equal top and bottom padding */
+            position: sticky;
+            /* Ensure the footer is fixed at the bottom */
+            left: 0;
+            width: 100%;
+            /* Span across the full width */
+            z-index: 10;
+            /* Ensure it stays above other elements if needed */
+        }
+
+        .page-count {
+            position: absolute;
+            bottom: 10px;
+            right: 20px;
+            font-size: 12px;
+            color: #999;
+        }
+
+        @media (max-width: 768px) {
+            .error-container {
+                margin: 20px;
+                padding: 30px 15px;
+            }
+
+            .error-code {
+                font-size: 48px;
+            }
+
+            .error-message {
+                font-size: 18px;
+            }
+
+            .script-details {
+                width: 90%;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header>
+        <h1 onclick="location.reload();">Scene Weaver</h1>
+        <nav>
+            <!-- Button styled as a Squarespace icon -->
+            <a href="{{ url_for('view_rooms') }}" onclick="showLoadingSpinner()">
+                <button class="icon-btn">
+                    <i class="fa-brands fa-squarespace fa-lg"></i>
+                </button>
+            </a>
+        </nav>
+    </header>
+
+    <div class="error-container">
+        <div class="error-code">{{ code }}</div>
+        <div class="error-message">{{ error }}</div>
+
+        <div class="script-details">
+            <p class="script-line action">FADE IN:</p>
+            <p class="script-line action">INT. BROWSER - DAY</p>
+            <p class="script-line action">The user stares at the screen, confusion evident.</p>
+            <p class="script-line character">SCENE WEAVER</p>
+            <p class="script-line dialogue">Looks like we've hit a snag in the story. But don't worry, every great
+                script has its rewrites.</p>
+        </div>
+
+        <a href="/" class="home-button"><i class="fas fa-home"></i> Return to Home</a>
+        <div class="page-count">PAGE 1.</div>
+    </div>
+
+    <footer>
+        <p>&copy; 2025 Scene Weaver. All rights reserved.</p>
+    </footer>
+</body>
+
+</html>

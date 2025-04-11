@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room Authentication - Scene Weaver</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles2.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <style>
+        .auth-container {
+            max-width: 500px;
+            margin: 50px auto;
+            padding: 30px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        }
+        .auth-header {
+            text-align: center;
+            margin-bottom: 25px;
+        }
+        .auth-form {
+            display: flex;
+            flex-direction: column;
+        }
+        .form-group {
+            margin-bottom: 20px;
+        }
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        .form-group input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        .auth-button {
+            background-color: #ff004f;
+            color: white;
+            border: none;
+            padding: 12px;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        .room-info {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .error-message {
+            color: #dc3545;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8d7da;
+            border-radius: 5px;
+            display: none;
+        }
+        .error-message.show {
+            display: block;
+        }
+        
+        .security-note {
+            background-color: #e8f5e9;
+            border-left: 4px solid #ff004f;
+            padding: 10px 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        
+        .security-note i {
+            color: #ff004f;
+            margin-right: 5px;
+        }
+        footer {
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    font-size: 14px;
+    padding: 10px;
+   position: fixed;
+    left: 0;
+    bottom: 0; /* Ensure the footer stays at the bottom */
+    width: 100%; /* Make sure the footer spans across the full width */
+    margin-top: 0; /* Remove negative margin */
+}
+    </style>
+</head>
+<body>
+    <header>
+        <h1 onclick="location.reload();">Scene Weaver</h1>
+        <nav>
+            <a href="{{ url_for('home') }}">
+                <button class="icon-btn">
+                    <i class="fa-solid fa-house"></i>
+                </button>
+            </a>
+        </nav>
+    </header>
+
+    <div class="auth-container">
+        <div class="auth-header">
+            <h2>Room Authentication Required</h2>
+        </div>
+        
+        <div class="room-info">
+            <p><strong>Room Code:</strong> {{ room_code }}</p>
+            <p><strong>Genre:</strong> {{ genre }}</p>
+        </div>
+        
+        {% if error %}
+        <div class="error-message show">
+            {{ error }}
+        </div>
+        {% endif %}
+        
+        <form class="auth-form" method="POST" action="{{ url_for('join_room_page', room_code=room_code) }}">
+            <!-- CSRF Protection -->
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            
+            <div class="form-group">
+                <label for="password">Room Password</label>
+                <input type="password" id="password" name="password" placeholder="Enter room password" required>
+            </div>
+            
+            <div class="security-note">
+                <p><i class="fa-solid fa-shield-alt"></i> Your connection to this room is secure.</p>
+            </div>
+            
+            <button type="submit" class="auth-button">Join Room</button>
+        </form>
+    </div>
+
+  
+    <script>
+        // Auto-hide error message after 5 seconds
+        document.addEventListener('DOMContentLoaded', function() {
+            const errorMessage = document.querySelector('.error-message.show');
+            if (errorMessage) {
+                setTimeout(() => {
+                    errorMessage.style.opacity = '0';
+                    errorMessage.style.transition = 'opacity 0.5s';
+                    setTimeout(() => {
+                        errorMessage.style.display = 'none';
+                    }, 500);
+                }, 5000);
+            }
+        });
+    </script>
+</body>
+</html>

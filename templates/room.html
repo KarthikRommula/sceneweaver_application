@@ -7,14 +7,236 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles2.css') }}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
     <title>Room Details</title>
+   <style>/* Toast notification styles - Responsive Version */
+    :root {
+      --toast-primary: #555555;
+      --toast-error: #f44336;
+      --toast-shadow: rgba(0, 0, 0, 0.2);
+      --toast-text: white;
+      --highlight-bg: #f5f5f5;
+      --warning-bg: #fff8e1;
+      --warning-border: #ffc107;
+      --danger-text: #d32f2f;
+    }
+    
+    #toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 1000;
+      max-width: 90%;
+      width: 350px;
+    }
+    
+    .toast {
+      background-color: var(--toast-primary);
+      color: var(--toast-text);
+      padding: 15px 20px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      box-shadow: 0 3px 10px var(--toast-shadow);
+      animation: slide-in 0.5s ease-out;
+      width: 100%;
+      word-wrap: break-word;
+      font-size: 16px;
+      line-height: 1.5;
+    }
+    
+    .toast.error {
+      background-color: var(--toast-error);
+    }
+    
+    .toast.fade-out {
+      animation: fade-out 0.5s ease-out forwards;
+    }
+    
+    .share-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 8px 12px;
+      color: black;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 20px;
+      background-color: transparent;
+    }
+    
+    .share-btn:hover {
+      background-color: rgba(0, 0, 0, 0.05);
+    }
+    
+    .share-btn i {
+      margin-right: 8px;
+    }
+    
+    .share-dropdown {
+      position: absolute;
+      background-color: white;
+      border-radius: 8px;
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.15);
+      z-index: 1000;
+      width: 220px;
+      overflow: hidden;
+      right: 0;
+    }
+    
+    .share-option {
+      padding: 12px 15px;
+      cursor: pointer;
+      transition: background-color 0.3s;
+      display: flex;
+      align-items: center;
+      font-size: 15px;
+    }
+    
+    .share-option:hover {
+      background-color: var(--highlight-bg);
+    }
+    
+    .share-option i {
+      margin-right: 12px;
+      width: 20px;
+      text-align: center;
+      font-size: 18px;
+    }
+    
+    .host-credentials {
+      margin-top: 15px;
+      padding: 15px;
+      background-color: var(--warning-bg);
+      border-left: 4px solid var(--warning-border);
+      border-radius: 6px;
+      animation: fade-in 0.5s ease-out;
+      font-size: 15px;
+    }
+    
+    .host-password {
+      font-family: monospace;
+      font-weight: bold;
+      letter-spacing: 1px;
+      background-color: var(--highlight-bg);
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      margin: 5px 0;
+    }
+    
+    .password-note {
+      font-size: 14px;
+      color: var(--danger-text);
+      margin-top: 8px;
+      line-height: 1.4;
+    }
+    
+    /* Animations */
+    @keyframes slide-in {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+    
+    @keyframes fade-out {
+      from {
+        opacity: 1;
+      }
+      to {
+        opacity: 0;
+      }
+    }
+    
+    @keyframes fade-in {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+    
+    /* Mobile Responsiveness */
+    @media only screen and (max-width: 768px) {
+      #toast-container {
+        bottom: 15px;
+        right: 15px;
+        max-width: 85%;
+        width: 300px;
+      }
+      
+      .toast {
+        padding: 12px 15px;
+        font-size: 15px;
+      }
+      
+      .share-btn {
+       margin-left: -10px;
+      }
+      .share-btn:hover {
+      background-color: rgba(0, 0, 0, 0);
+    }
+      .share-dropdown {
+        width: 200px;
+      }
+    }
+    
+    @media only screen and (max-width: 480px) {
+      #toast-container {
+        bottom: 10px;
+        right: 10px;
+        left: 10px;
+        width: auto;
+        max-width: 95%;
+      }
+      
+      .share-btn {
+        margin-left: -10px;
+      }
+      
+      .share-dropdown {
+        width: 180px;
+        right: 0;
+      }
+      
+      .host-credentials {
+        padding: 12px;
+        font-size: 14px;
+      }
+      .share-btn:hover {
+      background-color: rgba(0, 0, 0, 0);
+    }
+      .password-note {
+        font-size: 13px;
+      }
+    }
+    
+    /* For very small screens */
+    @media only screen and (max-width: 320px) {
+      .toast {
+        padding: 10px 12px;
+        font-size: 14px;
+      }
+      .share-btn:hover {
+      background-color: rgba(0, 0, 0, 0);
+    }
+      .share-option {
+        padding: 10px 12px;
+        font-size: 14px;
+      }
+    }</style>
 </head>
 
 <body>
     <header>
-        <h1 onclick="showLoadingSpinner(); setTimeout(function() { location.reload(); }, 100);">Scene Weaver</h1>
+        <h1 onclick="location.reload();">Scene Weaver</h1>
         <nav>
             <!-- Button styled as a Squarespace icon -->
-            <a href="{{ url_for('home') }}" onclick="showLoadingSpinner()">
+            <a href="{{ url_for('home') }}">
                 <button class="icon-btn">
                     <i class="fa-solid fa-house"></i>
                 </button>
@@ -28,15 +250,26 @@
         <p>
             <strong>Room URL:</strong>
             <a href="#" class="room-link" onclick="copyToClipboard('{{ room_url }}'); return false;" id="room-url-link">{{ room_url }}</a>
+            <button class="share-btn" onclick="shareRoom('{{ room_url }}')" title="Share Room">
+                <i class="fa-solid fa-share-from-square"></i>
+            </button>
         </p>
-        
+        {% if host_password and view_password %}
+        <div class="host-credentials">
+            <h3>Room Credentials</h3>
+            <p><strong>View Password:</strong> <span class="host-password">{{ view_password }}</span></p>
+            <p class="password-note">Share this password with participants who need to access the room.</p>
+            
+            <p><strong>Host Password:</strong> <span class="host-password">{{ host_password }}</span></p>
+            <p class="password-note">Keep this password secure! Only you as the host should know this password. You'll need it to release the room later.</p>
+        </div>
+        {% endif %}
         
         <img src="{{ qr_code }}" alt="Room QR Code">
-        <a href="{{ room_url }}" class="button" onclick="showLoadingSpinner()">Join Room</a>
+        <a href="{{ room_url }}{% if username %}&username={{ username }}{% endif %}" class="button">Join Room</a>
+    <div id="toast-container"></div>
     </div>
-    <div id="loadingSpinner" class="loading-spinner" style="display: none;">
-        <i class="fa-solid fa-spinner"></i>
-    </div>
+
     <footer>
         <p class="footer">&copy; 2025 Scene Weaver. All rights reserved.</p>
     </footer>
@@ -47,7 +280,7 @@
         if (navigator.clipboard) {
             // Modern Clipboard API
             navigator.clipboard.writeText(url).then(function () {
-                alert("URL copied to clipboard!");
+                showToast("URL copied to clipboard!");
                 
                 // Add 'copied' class for feedback
                 const link = document.getElementById("room-url-link");
@@ -59,7 +292,7 @@
                 }, 2000);
             }).catch(function (err) {
                 console.error("Failed to copy text: ", err);
-                alert("Failed to copy. Please try again.");
+                showToast("Failed to copy. Please try again.", true);
             });
         } else {
             // Fallback for older browsers (execCommand)
@@ -70,7 +303,7 @@
             try {
                 var successful = document.execCommand('copy');
                 if (successful) {
-                    alert("URL copied to clipboard!");
+                    showToast("URL copied to clipboard!");
                     
                     // Add 'copied' class for feedback
                     const link = document.getElementById("room-url-link");
@@ -81,66 +314,191 @@
                         link.classList.remove("copied");
                     }, 2000);
                 } else {
-                    alert("Failed to copy.");
+                    showToast("Failed to copy.", true);
                 }
             } catch (err) {
                 console.error("Fallback failed: ", err);
-                alert("Clipboard not supported!");
+                showToast("Clipboard not supported!", true);
             }
             document.body.removeChild(textArea);
         }
     }
-    window.addEventListener('beforeunload', function (event) {
-        // Show the loading spinner when the page is unloading (e.g., refresh, navigate away)
-        showLoadingSpinner();
-    });
 
-    // Show the loading spinner
-    function showLoadingSpinner() {
-        const spinner = document.getElementById('loadingSpinner');
-        spinner.style.display = 'block';
-        spinner.classList.add('show-spinner'); // Add transition class for smooth appearance
-
-        // Set a flag in sessionStorage indicating that loading is in progress
-        sessionStorage.setItem('loading', 'true');
+    // Function to share room URL using Web Share API if available
+    function shareRoom(url) {
+        // Create a dropdown menu for sharing options
+        const shareMenu = document.getElementById('share-dropdown');
+        
+        // If the menu already exists, toggle its visibility
+        if (shareMenu) {
+            shareMenu.style.display = shareMenu.style.display === 'none' ? 'block' : 'none';
+            return;
+        }
+        
+        // Create the dropdown menu
+        const dropdown = document.createElement('div');
+        dropdown.id = 'share-dropdown';
+        dropdown.className = 'share-dropdown';
+        
+        // Add sharing options
+        dropdown.innerHTML = `
+            <div class="share-option" onclick="shareViaWhatsApp('${url}')"><i class="fab fa-whatsapp"></i> WhatsApp</div>
+            <div class="share-option" onclick="shareViaEmail('${url}')"><i class="fas fa-envelope"></i> Email</div>
+            <div class="share-option" onclick="shareViaFacebook('${url}')"><i class="fab fa-facebook"></i> Facebook</div>
+            <div class="share-option" onclick="shareViaTwitter('${url}')"><i class="fab fa-twitter"></i> Twitter</div>
+            <div class="share-option" onclick="shareViaNativeShare('${url}')"><i class="fas fa-share-alt"></i> Share...</div>
+            <div class="share-option" onclick="copyToClipboard('${url}'); document.getElementById('share-dropdown').style.display='none';"><i class="fas fa-copy"></i> Copy Link</div>
+        `;
+        
+        // Position the dropdown
+        const shareBtn = document.querySelector('.share-btn');
+        const rect = shareBtn.getBoundingClientRect();
+        dropdown.style.top = `${rect.bottom + window.scrollY}px`;
+        dropdown.style.left = `${rect.left + window.scrollX}px`;
+        
+        // Add the dropdown to the document body
+        document.body.appendChild(dropdown);
+        
+        // Close the dropdown when clicking outside of it
+        document.addEventListener('click', function closeDropdown(e) {
+            if (!dropdown.contains(e.target) && e.target !== shareBtn) {
+                dropdown.style.display = 'none';
+                document.removeEventListener('click', closeDropdown);
+            }
+        });
+    }
+    
+    function shareViaWhatsApp(url) {
+        window.open(`https://wa.me/?text=${encodeURIComponent('Join me in this Scene Weaver room! ' + url)}`, '_blank');
+        document.getElementById('share-dropdown').style.display = 'none';
+        showToast('Opening WhatsApp...');
+    }
+    
+    function shareViaEmail(url) {
+        window.open(`mailto:?subject=Join my Scene Weaver Room&body=${encodeURIComponent('Join me in this Scene Weaver room! ' + url)}`, '_blank');
+        document.getElementById('share-dropdown').style.display = 'none';
+        showToast('Opening email client...');
+    }
+    
+    function shareViaFacebook(url) {
+        window.open(`https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`, '_blank');
+        document.getElementById('share-dropdown').style.display = 'none';
+        showToast('Opening Facebook...');
+    }
+    
+    function shareViaTwitter(url) {
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent('Join me in this Scene Weaver room!')}&url=${encodeURIComponent(url)}`, '_blank');
+        document.getElementById('share-dropdown').style.display = 'none';
+        showToast('Opening Twitter...');
+    }
+    
+    function shareViaNativeShare(url) {
+        if (navigator.share) {
+            navigator.share({
+                title: 'Join my Scene Weaver Room',
+                text: 'Join me in this Scene Weaver room!',
+                url: url
+            })
+            .then(() => showToast('Room shared successfully!'))
+            .catch((error) => {
+                console.error('Error sharing:', error);
+                copyToClipboard(url);
+                showToast('URL copied to clipboard!');
+            });
+        } else {
+            copyToClipboard(url);
+            showToast('URL copied to clipboard!');
+        }
+        document.getElementById('share-dropdown').style.display = 'none';
+    }
+    
+    // Toast notification function
+    function showToast(message, isError = false) {
+        // Check if a toast container already exists
+        let toastContainer = document.getElementById('toast-container');
+        
+        // If not, create one
+        if (!toastContainer) {
+            toastContainer = document.createElement('div');
+            toastContainer.id = 'toast-container';
+            document.body.appendChild(toastContainer);
+        }
+        
+        // Create a new toast
+        const toast = document.createElement('div');
+        toast.className = isError ? 'toast error' : 'toast';
+        toast.textContent = message;
+        
+        // Add to container
+        toastContainer.appendChild(toast);
+        
+        // Remove after animation
+        setTimeout(() => {
+            toast.classList.add('fade-out');
+            setTimeout(() => {
+                toastContainer.removeChild(toast);
+                // Remove container if empty
+                if (toastContainer.children.length === 0) {
+                    document.body.removeChild(toastContainer);
+                }
+            }, 500);
+        }, 3000);
+    }
+    // Detect if page was loaded from a redirect and show appropriate message
+    if (sessionStorage.getItem('redirected')) {
+        sessionStorage.removeItem('redirected');
     }
 
-    // Hide the loading spinner
-    function hideLoadingSpinner() {
-        const spinner = document.getElementById('loadingSpinner');
-        spinner.classList.remove('show-spinner'); // Remove transition class
-        spinner.style.display = 'none'; // Ensure it's hidden
+    // Removed loading spinner functions
 
-        // Reset loading state in sessionStorage
-        sessionStorage.removeItem('loading');
-    }
-
-    // Clear sessionStorage and hide spinner on page load
+    // Initialize on page load
     window.onload = function () {
-        // Reset loading state and hide spinner immediately when the home page is loaded
+        // Reset any loading state
         if (sessionStorage.getItem('loading')) {
-            sessionStorage.removeItem('loading');  // Remove loading state if exists
+            sessionStorage.removeItem('loading');
         }
 
-        hideLoadingSpinner();  // Make sure spinner is hidden on page load
+        // Check if there's a stored username for this room
+        const roomCode = '{{ room_code }}';
+        const username = '{{ username }}';
+        
+        // Store username in localStorage for persistence
+        if (username && roomCode) {
+            localStorage.setItem(`room_${roomCode}_username`, username);
+            console.log(`Stored username for room ${roomCode}: ${username}`);
+        }
+        
+        // Store view password if available
+        const viewPassword = '{{ view_password|default("") }}';
+        if (viewPassword) {
+            localStorage.setItem(`view_password_${roomCode}`, viewPassword);
+            console.log('View password stored in local storage');
+        }
+        
+        // Store host password if available
+        const hostPassword = '{{ host_password|default("") }}';
+        if (hostPassword) {
+            localStorage.setItem(`host_password_${roomCode}`, hostPassword);
+            console.log('Host password stored in local storage');
+        }
+        
+        // Mark that this user has joined this room
+        localStorage.setItem(`joined_${roomCode}`, 'true');
     };
 
-    // Optional: Make sure the spinner hides immediately after the page loads
+    // Document ready event
     document.addEventListener('DOMContentLoaded', function () {
-        hideLoadingSpinner();
+        // Initialize page
     });
-
-    // Optional: Add setTimeout to ensure spinner hides after a few seconds (for testing)
-    setTimeout(hideLoadingSpinner, 2000); // Hide after 3 seconds for testing
 
     // Example of async behavior (loading some data)
     async function loadData() {
-        showLoadingSpinner();  // Show spinner when loading starts
+        console.log('Loading data...');
 
         // Simulate data loading (API or other async action)
-        await new Promise(resolve => setTimeout(resolve, 1000));  // Simulate 2 seconds of delay
+        await new Promise(resolve => setTimeout(resolve, 1000));  // Simulate 1 second of delay
 
-        hideLoadingSpinner();  // Hide spinner after loading is complete
+        console.log('Data loaded');
     }
 
     // Example of loading data (call loadData() when data is being fetched, like on button click)

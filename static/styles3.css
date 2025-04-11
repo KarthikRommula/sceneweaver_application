@@ -75,21 +75,7 @@ header nav a:hover {
     /* Slight zoom effect */
 }
 
-.loading-spinner {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.5);
-    color: #fff;
-    padding: 10px;
-    border-radius: 10px;
-    font-size: 18px;
-    display: none;
-    /* Initially hidden */
-    z-index: 9999;
-    /* Ensure it appears above other elements */
-}
+
 
 footer {
     background-color: black;
@@ -98,9 +84,8 @@ footer {
     font-size: 14px;
     padding: 10px 0;
     /* Equal top and bottom padding */
-    position: fixed;
+    position: sticky;
     /* Ensure the footer is fixed at the bottom */
-    bottom: 0;
     left: 0;
     width: 100%;
     /* Span across the full width */
@@ -759,6 +744,7 @@ button.leave-button:focus {
     width: fit-content;
     max-width: 80%;
     font-style: italic;
+    margin-left: 10px;
     /* Make text italic to indicate it’s from the bot */
 }
 
@@ -851,6 +837,7 @@ button.leave-button:focus {
         /* Remove box-shadow */
         overflow: hidden;
         /* Ensure no vertical scrolling */
+        margin-top: 2rem;        /* 👈 This moves the container down */
     }
 
 

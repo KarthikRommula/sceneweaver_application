@@ -155,9 +155,8 @@ footer {
     text-align: center;
     font-size: 14px;
     padding: 10px;
-    position: fixed;
+    position: sticky;
     left: 0;
-    bottom: 0; /* Ensure the footer stays at the bottom */
     width: 100%; /* Make sure the footer spans across the full width */
     margin-top: 0; /* Remove negative margin */
 }
@@ -181,19 +180,6 @@ footer {
     transform: scale(1.1); /* Slight zoom effect */
   }
  
-  .loading-spinner {
-    position: fixed;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    background-color: rgba(0, 0, 0, 0.5);
-    color: #fff;
-    padding: 10px;
-    border-radius: 10px;
-    font-size: 18px;
-    display: none; /* Initially hidden */
-    z-index: 9999; /* Ensure it appears above other elements */
-}
 @media only screen and (max-width:900px){
     .project-card {
         background-color: #fefefe;
@@ -230,8 +216,9 @@ footer {
         -webkit-tap-highlight-color: transparent; /* Specific for mobile devices */
     }
     #genre-selection h2 {
-        text-align:justify;
-        font-size:26px;
-        margin-left: 7px;
+        text-align: justify; /* Better for small screens */
+        font-size: 24px; /* Slightly smaller for mobile */
+        margin-left: 10px; /* A bit more padding for spacing */
     }
+    
 }
