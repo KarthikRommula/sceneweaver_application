@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Room - {{ room_code }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles3.css') }}">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.min.js"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+    <header>
+        <h1 onclick="showLoadingSpinner(); setTimeout(function() { location.reload(); }, 100);">Scene Weaver</h1>
+        <nav>
+            <!-- Button styled as a Squarespace icon -->
+            <a href="{{ url_for('view_rooms') }}" onclick="showLoadingSpinner()">
+                <button class="icon-btn">
+                    <i class="fa-brands fa-squarespace fa-lg"></i>
+                </button>
+            </a>
+        </nav>
+    </header>
+    <div id="name-popup" class="overlay">
+        <div class="popup">
+            <button class="close-btn" onclick="closePopup()"><i class="fa-solid fa-xmark fa-xl"
+                    style="color: #ff0000;"></i></button>
+            <h2>Enter Your Name</h2>
+            <input type="text" id="username-input" required>
+            <button class="submit" onclick="submitUsername()">SUBMIT</button>
+            <span class="invalid-message" id="invalid-message">Please enter a valid name.</span>
+        </div>
+    </div>
+
+    <!-- Main Container -->
+    <div class="container">
+        <h1>Welcome to Room : <span class="room-code">{{ room_code }}</span></h1>
+
+        <div class="controls">
+            <button onclick="toggleHistory()" class="history-button"><i
+                    class="fa-solid fa-clock-rotate-left fa-xl"></i></button>
+            <button onclick="leaveRoom()" class="leave-button"><i
+                    class="fa-solid fa-right-from-bracket fa-xl"></i></button>
+        </div>
+
+        <!-- Chat History Section -->
+        <div id="chat-history" class="chat-history hidden"></div>
+
+        <!-- Chat Box -->
+        <div id="chat" class="chat-box"></div>
+
+        <!-- Message Input and File Upload -->
+        <div class="message-container">
+            <input type="text" id="message" class="message-input" placeholder="Type a message" autocomplete="off">
+            <button onclick="sendMessage()" class="send-button"><i class="fa-solid fa-paper-plane fa-lg"></i></button>
+            <label for="file-upload" class="file-upload-label">
+                <i class="fa-solid fa-paperclip fa-lg"></i>
+            </label>
+            <input type="file" id="file-upload" class="file-upload" onchange="uploadFile()" />
+            <a href="javascript:void(0);" class="ai-floating-button" onclick="redirectToGenius()">
+                <i class="fas fa-robot"></i> Genius AI
+            </a>
+
+        </div>
+    </div>
+    <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+        <i class="fa-solid fa-spinner"></i>
+    </div>
+
+
+    <script>
+          window.addEventListener('beforeunload', function (event) {
+        // Show the loading spinner when the page is unloading (e.g., refresh, navigate away)
+        showLoadingSpinner();
+    });
+
+    // Show the loading spinner
+    function showLoadingSpinner() {
+        const spinner = document.getElementById('loadingSpinner');
+        spinner.style.display = 'block';
+        spinner.classList.add('show-spinner'); // Add transition class for smooth appearance
+
+        // Set a flag in sessionStorage indicating that loading is in progress
+        sessionStorage.setItem('loading', 'true');
+    }
+
+    // Hide the loading spinner
+    function hideLoadingSpinner() {
+        const spinner = document.getElementById('loadingSpinner');
+        spinner.classList.remove('show-spinner'); // Remove transition class
+        spinner.style.display = 'none'; // Ensure it's hidden
+
+        // Reset loading state in sessionStorage
+        sessionStorage.removeItem('loading');
+    }
+
+    // Clear sessionStorage and hide spinner on page load
+    window.onload = function () {
+        // Reset loading state and hide spinner immediately when the home page is loaded
+        if (sessionStorage.getItem('loading')) {
+            sessionStorage.removeItem('loading');  // Remove loading state if exists
+        }
+
+        hideLoadingSpinner();  // Make sure spinner is hidden on page load
+    };
+
+    // Optional: Make sure the spinner hides immediately after the page loads
+    document.addEventListener('DOMContentLoaded', function () {
+        hideLoadingSpinner();
+    });
+
+    // Optional: Add setTimeout to ensure spinner hides after a few seconds (for testing)
+    setTimeout(hideLoadingSpinner, 2000); // Hide after 3 seconds for testing
+
+    // Example of async behavior (loading some data)
+    async function loadData() {
+        showLoadingSpinner();  // Show spinner when loading starts
+
+        // Simulate data loading (API or other async action)
+        await new Promise(resolve => setTimeout(resolve, 1000));  // Simulate 2 seconds of delay
+
+        hideLoadingSpinner();  // Hide spinner after loading is complete
+    }
+
+    // Example of loading data (call loadData() when data is being fetched, like on button click)
+    // loadData(); 
+        const socket = io();
+        let username = "";
+
+
+        // Fetching file messages
+        socket.on("file_message", function (data) {
+            appendFileMessage(data.username, data.file_url, data.timestamp);
+        });
+
+        function submitUsername() {
+            username = document.getElementById("username-input").value.trim();
+            const errorMessage = document.getElementById("invalid-message");
+
+            if (username === "") {
+                errorMessage.classList.add("show"); // Show error message
+            } else {
+                errorMessage.classList.remove("show"); // Hide error message
+                localStorage.setItem("username", username);
+                joinRoom();
+                closePopup();
+            }
+        }
+
+
+        // Window Load: Handle username and room joining
+        window.onload = function () {
+            const savedRoom = localStorage.getItem("room_code");
+            if (savedRoom && savedRoom !== "{{ room_code }}") {
+                localStorage.removeItem("username");
+            }
+
+            const savedUsername = localStorage.getItem("username");
+            if (savedUsername) {
+                username = savedUsername;
+                joinRoom();
+            } else {
+                document.getElementById("name-popup").style.display = "flex";
+            }
+            document.getElementById("message").addEventListener("keydown", function (event) {
+                // Check if the pressed key is the Enter key
+                if (event.key === "Enter") {
+                    event.preventDefault();  // Prevent the default action (like a newline in the input field)
+                    sendMessage();  // Call the sendMessage function
+                }
+            });
+        };
+
+        // Join the room on successful username input
+        function joinRoom() {
+            localStorage.setItem("room_code", "{{ room_code }}");
+            socket.emit("join", { username: username, room: "{{ room_code }}" });
+
+        }
+
+        // Close the popup
+        function closePopup() {
+            document.getElementById("name-popup").style.display = "none";
+        }
+
+        // Submit username
+        function submitUsername() {
+            username = document.getElementById("username-input").value.trim().toUpperCase();  // Convert input to uppercase
+            const errorMessage = document.getElementById("invalid-message");
+
+            if (username === "") {
+                errorMessage.classList.add("show"); // Show error message
+            } else {
+                errorMessage.classList.remove("show"); // Hide error message
+                localStorage.setItem("username", username);
+                joinRoom();
+                closePopup();
+            }
+
+        }
+        document.getElementById("username-input").addEventListener("keydown", function (event) {
+            if (event.key === "Enter") {
+                event.preventDefault(); // Prevent the default behavior of the Enter key (form submission)
+                submitUsername(); // Call the submit function
+            }
+        });
+        // Send a message
+        function sendMessage() {
+            const message = document.getElementById("message").value.trim();
+            if (message) {
+                const timestamp = new Date().toLocaleTimeString();
+                socket.emit("message", { username: username, room: "{{ room_code }}", message: message, timestamp: timestamp });
+                document.getElementById("message").value = "";
+            }
+        }
+
+        // Receive messages
+        socket.on("message", function (data) {
+            appendMessage(data.username, data.message, data.timestamp);
+        });
+
+        // Append regular messages to chat box with timestamp
+        function appendMessage(username, message, timestamp) {
+            const chat = document.getElementById("chat");
+            const bubble = document.createElement("div");
+            bubble.classList.add("chat-bubble", username === username ? "sent" : "received");
+
+            bubble.innerHTML = `<strong>${username}:</strong> ${message} <span class="timestamp">(${timestamp})</span>`;
+            chat.appendChild(bubble);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        // Append file messages to chat box with timestamp
+        function appendFileMessage(username, fileUrl, timestamp) {
+            const chat = document.getElementById("chat");
+            const bubble = document.createElement("div");
+
+            // Add class for system message
+            bubble.classList.add("chat-bubble", "system-message");
+
+            // Extract file name from the URL
+            const fileName = fileUrl.split('/').pop(); // Get the file name from the URL
+
+            // Create the system message with the file name as a clickable link
+            bubble.innerHTML = `${username} uploaded a file: <a href="${fileUrl}" target="_blank" class="file-name">${fileName}</a>`;
+
+            // Append the bubble to the chat
+            chat.appendChild(bubble);
+
+            // Scroll to the bottom of the chat
+            chat.scrollTop = chat.scrollHeight;
+        }
+        function redirectToGenius() {
+            window.location.href = "https://scene-weaver-geniusai.streamlit.app/"; // Replace with the actual link
+        }
+
+        // Toggle chat history visibility
+        function toggleHistory() {
+            const historyDiv = document.getElementById("chat-history");
+            historyDiv.classList.toggle("hidden");
+
+            if (!historyDiv.classList.contains("hidden")) {
+                historyDiv.innerHTML = "";
+                fetch(`/room-history/{{ room_code }}`)
+                    .then((res) => res.json())
+                    .then((history) => {
+                        if (history.length === 0) {
+                            historyDiv.innerHTML = "<p>No messages in history.</p>";
+                        } else {
+                            history.forEach((message) => {
+                                const entry = document.createElement("div");
+                                entry.className = "chat-bubble";
+
+                                // Modify the timestamp to include full date and time in the desired format
+                                const formattedTimestamp = new Date(message.timestamp).toLocaleString('en-US', {
+                                    year: 'numeric',
+                                    month: 'short',  // "Nov"
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit',
+                                    hour12: true,  // AM/PM
+                                });
+
+                                entry.innerHTML = `<strong>${message.username}:</strong> ${message.message} <span class="timestamp">(${formattedTimestamp})</span>`;
+                                historyDiv.appendChild(entry);
+                            });
+                        }
+                    })
+                    .catch((error) => {
+                        console.error("Error fetching chat history:", error);
+                        historyDiv.innerHTML = "<p>Failed to load history. Please try again later.</p>";
+                    });
+            }
+        }
+
+        // Leave the room
+        function leaveRoom() {
+            socket.emit("leave", { username: username, room: "{{ room_code }}" });
+            localStorage.removeItem("username");
+            localStorage.removeItem("room_code");
+            window.location.href = "/";
+        }
+        socket.on("left", (data) => {
+            const messageContainer = document.createElement("div");
+            messageContainer.className = "system-message";
+            messageContainer.textContent = `${data.username} has left the room.`;
+            document.getElementById("chat").appendChild(messageContainer);
+        });
+
+        // File upload handler
+        // File upload handler
+        function uploadFile() {
+            const file = document.getElementById("file-upload").files[0];
+            if (file) {
+                const formData = new FormData();
+                formData.append("file", file);
+                formData.append("username", username);
+                formData.append("room_code", "{{ room_code }}");
+
+                fetch("/upload", {
+                    method: "POST",
+                    body: formData,
+                })
+                    .then((res) => res.json())
+                    .then((data) => {
+                        if (data.file_url) {
+                            const timestamp = new Date().toLocaleTimeString();
+                            socket.emit("file_message", {
+                                username: username,
+                                room: "{{ room_code }}",
+                                file_url: data.file_url,
+                                timestamp: timestamp,
+                            });
+                        }
+                    })
+                    .catch((error) => {
+                        console.error("Error uploading file:", error);
+                    });
+            }
+        }
+
+
+        // Get the elements
+        const historyButton = document.querySelector('.history-button');
+        const chatHistory = document.querySelector('.chat-history');
+
+        // Toggle the visibility of chat history on button click
+        historyButton.addEventListener('click', () => {
+            chatHistory.classList.toggle('visible'); // Toggle visibility
+        });
+        // Receive the "joined" message event from the server
+        socket.on("joined", function (data) {
+            appendSystemMessage(`${data.username} has joined the room.`);
+        });
+        if (data.username !== username) {
+            appendSystemMessage(`${data.username} has joined the room.`);
+        }
+
+
+        // Append system messages like user joining
+        function appendSystemMessage(message) {
+            const chat = document.getElementById("chat");
+            const systemMessage = document.createElement("div");
+            systemMessage.classList.add("system-message");
+            systemMessage.innerHTML = `<em>${message}</em>`;
+            chat.appendChild(systemMessage);
+            chat.scrollTop = chat.scrollHeight;
+        }
+
+        // Handle incoming messages
+        socket.on("message", (data) => {
+            const messageContainer = document.createElement("div");
+            messageContainer.classList.add("chat-bubble"); // Default chat bubble class
+
+            // Check if the message is from Genius
+            if (data.isGenius) {
+                messageContainer.classList.add("genius-chat"); // Add specific class for Genius messages
+            }
+
+            // Add content to the message container
+            messageContainer.innerHTML = `
+        <strong>${data.username}</strong>: ${data.message} 
+        <span class="timestamp">${data.timestamp}</span>
+    `;
+
+            // Append the message to the chat area
+            document.querySelector(".chat-area").appendChild(messageContainer);
+        });
+
+        // Trigger the "end_room" event when the room creator clicks "End Room"
+        function endRoom(roomCode) {
+            const username = getUsername(); // Get the username of the creator
+            socket.emit("end_room", {
+                room: roomCode,
+                username: username
+            });
+        }
+
+        // Listen for room_ended event
+        socket.on("room_ended", (data) => {
+            alert(data.message); // Show room end message
+            window.location.href = '/'; // Optionally redirect to home page
+        });
+
+
+    </script>
+</body>
+<footer>
+    <p>&copy; 2025 Scene Weaver. All rights reserved.</p>
+</footer>
+
+</html>

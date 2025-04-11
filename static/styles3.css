@@ -1,0 +1,994 @@
+@import url('https://fonts.googleapis.com/css2?family=Poppins&display=swap');
+
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: #f4f4f9;
+    height: 100vh;
+    flex-direction: column;
+    overflow: hidden;
+    box-sizing: border-box;
+    /* Ensures consistent box model behavior */
+}
+
+header {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px;
+    background-color: black;
+    color: #fff;
+    margin-top: -50px;
+    position: relative;
+    z-index: 20;
+    margin-bottom: 6px;
+}
+
+header h1 {
+    font-size: 24px;
+    user-select: none;
+    cursor: pointer;
+    color: white;
+    margin-bottom: 0;
+    margin-top: 0;
+    margin-left: 10px;
+}
+
+header nav a {
+    color: #fff;
+    text-decoration: none;
+    margin-left: 15px;
+}
+
+header nav a:hover {
+    text-decoration: underline;
+}
+
+.icon-btn {
+    background-color: transparent;
+    /* Button background color */
+    border: none;
+    /* Remove default border */
+    color: white;
+    /* Icon color */
+    font-size: 24px;
+    /* Icon size */
+    cursor: pointer;
+    /* Cursor pointer to indicate interactivity */
+    transition: background-color 0.3s, transform 0.3s;
+    /* Smooth transition */
+    outline: none;
+}
+
+.icon-btn:last-child {
+    margin-right: 5px;
+}
+
+.icon-btn:hover {
+    color: #ff004f;
+    transform: scale(1.1);
+    /* Slight zoom effect */
+}
+
+.loading-spinner {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 18px;
+    display: none;
+    /* Initially hidden */
+    z-index: 9999;
+    /* Ensure it appears above other elements */
+}
+
+footer {
+    background-color: black;
+    color: white;
+    text-align: center;
+    font-size: 14px;
+    padding: 10px 0;
+    /* Equal top and bottom padding */
+    position: fixed;
+    /* Ensure the footer is fixed at the bottom */
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    /* Span across the full width */
+    z-index: 10;
+    /* Ensure it stays above other elements if needed */
+}
+
+footer p {
+    margin: 0;
+    /* Remove any margin for the text inside the footer */
+}
+
+
+.file-name {
+    color: #007BFF;
+    /* Change this to the color you prefer for the file name */
+    font-weight: bold;
+}
+
+
+/* Heading styles */
+h1 {
+    text-align: center;
+    color: #333;
+}
+
+h1 .room-code {
+    color: #ff6347;
+    /* Tomato red color for the room code */
+    font-weight: 700;
+    /* Make the room code bolder */
+
+    letter-spacing: 1px;
+    /* Add slight spacing for emphasis */
+}
+
+/* Chat container styles */
+.container {
+    width: 90%;
+    max-width: 800px;
+    padding: 20px;
+    background-color: #fff;
+    border-radius: 10px;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    flex-direction: column;
+    height: 80vh;
+    margin-top: 0px;
+}
+
+/* Popup for username input */
+.overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    /* Slightly darker overlay */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeInOverlay 0.3s ease-in-out;
+}
+
+/* Popup container */
+.popup {
+    background-color: #ffffff;
+    padding: 30px;
+    border-radius: 12px;
+    text-align: center;
+    width: 90%;
+    max-width: 420px;
+    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.1);
+    animation: slideUpPopup 0.4s ease-in-out;
+    position: relative;
+}
+
+/* Title text */
+.popup h2 {
+    font-size: 24px;
+    color: #333;
+    margin-bottom: 20px;
+    font-weight: 600;
+}
+
+/* Instructions text */
+.popup p {
+    font-size: 16px;
+    color: #777;
+    margin-bottom: 20px;
+}
+
+/* Input field styling */
+.popup input {
+    padding: 12px;
+    width: 80%;
+    margin-bottom: 20px;
+    border-radius: 8px;
+    border: 1px solid #ccc;
+    font-size: 16px;
+    transition: border 0.3s ease;
+    background-color: #f9f9f9;
+}
+
+/* Input focus effect */
+.popup input:focus {
+    border-color: #3f85f8;
+    outline: none;
+    background-color: #fff;
+}
+
+/* Submit button styling */
+.popup button {
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+
+    color: #fff;
+    cursor: pointer;
+    font-size: 16px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+}
+
+
+
+/* Close button styling */
+.close-btn {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    padding: 8px 12px;
+    background-color: transparent;
+    border: none;
+    border-radius: 0%;
+    cursor: pointer;
+    font-size: 80px;
+
+}
+
+/* Submit button styling */
+.submit {
+    background-color: black;
+    /* Blue background */
+    color: white;
+    /* White text */
+    padding: 12px 24px;
+    /* Padding for the button */
+    border: none;
+    /* Remove border */
+    border-radius: 8px;
+    /* Rounded corners */
+    font-size: 16px;
+    /* Font size */
+    cursor: pointer;
+    /* Cursor change on hover */
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    /* Smooth transitions */
+}
+
+.submit:hover {
+    transform: none;
+    /* Slightly raise the button on hover */
+}
+
+.submit:active {
+    transform: translateY(0);
+    /* Button returns to normal position */
+}
+
+.submit:focus {
+    outline: none;
+    /* Remove outline when button is focused */
+
+}
+
+.submit:focus-visible {
+    outline: 2px solid #ff004f;
+    /* Highlight button on focus */
+}
+
+.submit:hover {
+    background-color: #ff004f;
+    /* Darker blue on hover */
+}
+
+.invalid-message {
+    z-index: 100;
+}
+
+.chat-bubble {
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+}
+
+.chat-box {
+    scroll-behavior: smooth;
+}
+
+/* Invalid input message styling */
+.invalid-message {
+    color: #ff4d4d;
+    /* Red color for error */
+    background-color: rgba(255, 77, 77, 0.1);
+    /* Light red background */
+    border-left: 5px solid #ff4d4d;
+    /* Left border to highlight */
+    font-size: 14px;
+    /* Font size */
+    font-weight: bold;
+    /* Make the message bold */
+    padding: 5px 10px;
+    /* Add some padding for better spacing */
+    margin-top: 10px;
+    /* Space between input field and error message */
+    border-radius: 4px;
+    /* Rounded corners */
+    display: none;
+    /* Hide by default */
+    opacity: 0;
+    /* Initial state with no visibility */
+    transition: opacity 0.3s ease-in-out;
+    /* Smooth fade-in transition */
+    width: 50%;
+    margin: 10px auto;
+    /* Center horizontally with auto margins */
+    text-align: center;
+
+}
+
+/* Show the error message when input is invalid */
+.invalid-message.show {
+    display: block;
+    /* Show the error message when the class 'show' is added */
+    opacity: 1;
+    /* Fade in the error message */
+}
+
+/* Add subtle animations */
+@keyframes fadeInOverlay {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
+
+@keyframes slideUpPopup {
+    0% {
+        transform: translateY(20px);
+        opacity: 0;
+    }
+
+    100% {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.chat-box {
+    overflow-y: auto;
+    /* Enable vertical scrolling */
+    flex-grow: 1;
+    margin-bottom: 20px;
+    padding-right: 10px;
+    /* Prevent content from touching the right side */
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.1);
+    border: 1px solid #ddd;
+    /* Border for the chat box */
+}
+
+
+
+/* Sent message style */
+.chat-bubble.sent {
+    background-color: #e6f3ff;
+    color: #333;
+    align-self: flex-end;
+    padding: 14px 20px;
+    border-radius: 20px 20px 20px 0px;
+    max-width: 80%;
+    margin-bottom: 10px;
+    position: relative;
+    font-size: 14px;
+    line-height: 1.5;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* Timestamp style */
+.chat-bubble {
+    position: relative;
+    /* Allow positioning of the timestamp relative to the chat bubble */
+    margin-bottom: 10px;
+    padding: 12px;
+    border-radius: 10px;
+    max-width: 80%;
+    word-wrap: break-word;
+    /* Ensure long words break appropriately */
+    font-size: 14px;
+    line-height: 1.5;
+    margin-left: 10px;
+}
+
+/* Timestamp styling */
+.timestamp {
+    position: absolute;
+    bottom: 2px;
+    /* Adjust the position to be closer to the bottom of the bubble */
+    right: 10px;
+    /* Adjust the position to be closer to the right of the bubble */
+    font-size: 0.8em;
+    color: #aaa;
+    margin-top: 2px;
+}
+
+/* Message Container Styling */
+.message-container {
+    display: flex;
+    align-items: center;
+    position: relative;
+    width: 100%;
+    max-width: 540px;
+    border-radius: 30px;
+    padding: 0 12px;
+    background-color: #f7f7f7;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    transition: box-shadow 0.3s ease-in-out;
+    right: -30px;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    white-space: normal;
+    max-height: 150px;
+}
+
+/* Message Input Field Styling */
+.message-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    padding: 12px 35px 12px 45px;
+    /* Padding with space for the icon */
+    font-size: 16px;
+    font-family: 'Arial', sans-serif;
+    color: #333;
+    background-color: transparent;
+    border-radius: 25px;
+    transition: background-color 0.3s ease;
+    resize: none;
+    max-height: 150px;
+    overflow-y: auto;
+    white-space: pre-wrap;
+    word-wrap: break-word;
+}
+
+.message-input::placeholder {
+    color: #aaa;
+    /* Light gray for placeholder text */
+}
+
+
+/* Send Button Styling */
+.send-button {
+    position: absolute;
+    right: 12px;
+    /* Positioned inside the input field on the left */
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    color: #c3c6c1;
+    /* Blue color for the send button */
+    font-size: 16px;
+    /* Icon size */
+    transition: transform 0.2s ease;
+    /* Smooth hover effect */
+}
+
+/* Send button hover effect */
+.send-button:hover {
+    transform: scale(1.1);
+    /* Slightly increase size on hover */
+    color: #3f85f8;
+    /* Darker blue on hover */
+}
+
+/* Icon Styling */
+.send-button i {
+    pointer-events: none;
+    /* Disable pointer events on the icon */
+}
+
+.file-upload-label {
+    position: absolute;
+    left: 12px;
+    /* Positioned inside the input field on the left */
+    background-color: transparent;
+    border: none;
+    cursor: pointer;
+    color: #c3c6c1;
+    /* Blue color for the send button */
+    font-size: 16px;
+    /* Icon size */
+    transition: transform 0.2s ease;
+    /* Smooth hover effect */
+}
+
+.file-upload {
+    display: none;
+    /* Hide the file input */
+}
+
+
+/* Controls layout */
+.controls {
+    display: flex;
+    justify-content: space-between;
+}
+
+
+
+/* Hide chat history initially */
+.chat-history.hidden {
+    display: none;
+}
+
+/* Scrollbar styling for chat history */
+.chat-box::-webkit-scrollbar {
+    width: 8px;
+}
+
+.chat-box::-webkit-scrollbar-thumb {
+    background-color: #c0c0c0;
+    border-radius: 0px;
+}
+
+.chat-box::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+}
+
+/* Chat history container styling */
+.chat-history {
+    max-height: 300px;
+    /* Set a max height for chat history */
+    overflow-y: auto;
+    /* Enable vertical scrolling */
+    padding: 0px;
+    border-radius: 10px;
+    background-color: white;
+    display: none;
+    /* Hidden by default */
+    flex-grow: 1;
+    transition: all 0.3s ease-in-out;
+    /* Smooth transition when shown */
+}
+
+/* Show chat history when the button is clicked */
+.chat-history.visible {
+    display: block;
+    /* Make the chat history visible */
+}
+
+/* Scrollbar styling for chat history */
+.chat-history::-webkit-scrollbar {
+    width: 8px;
+    /* Width of the scrollbar */
+}
+
+.chat-history::-webkit-scrollbar-thumb {
+    background-color: #c0c0c0;
+    border-radius: 0px;
+    /* Rounded scrollbar thumb */
+}
+
+.chat-history::-webkit-scrollbar-track {
+    background-color: #f1f1f1;
+    /* Track color */
+}
+
+/* Smooth scrolling behavior */
+.chat-history {
+    scroll-behavior: smooth;
+    /* Smooth scrolling for better UX */
+}
+
+/* Chat history button styling */
+
+.system-message {
+    background-color: transparent;
+    /* You can adjust the color */
+    align-self: center;
+    /* Center the system message */
+    max-width: 100%;
+    /* Optional: Adjust width if needed */
+    text-align: center;
+    /* Ensure the text is centered */
+    font-style: italic;
+    /* Optional: Style to differentiate system messages */
+    color: #555;
+    /* Optional: Adjust the text color */
+    font-size: 14px;
+    margin-top: 10px;
+    margin-bottom: 10px;
+
+}
+
+em {
+    font-size: 14px;
+}
+
+/* Styling for the history button */
+button.history-button {
+    background-color: transparent;
+    /* Transparent background */
+    border: none;
+    /* No border */
+    color: #3f85f8;
+    /* Default text color (blue) */
+    font-size: 16px;
+    /* Font size */
+    cursor: pointer;
+    /* Pointer cursor to indicate it's clickable */
+    padding: 10px 20px;
+    /* Padding around the button */
+    border-radius: 5px;
+    /* Rounded corners */
+    transition: background-color 0.3s, color 0.3s;
+    /* Smooth transition for background color and text color */
+    margin-bottom: 10px;
+}
+
+/* Hover effect for the leave button */
+button.history-button:hover {
+    color: #ff004f;
+    /* Change text color to black on hover */
+
+}
+
+/* Focus effect for the leave button */
+button.history-button:focus {
+    outline: none;
+    /* Remove the default outline */
+    box-shadow: 0 0 0px rgba(0, 0, 0, 0.7);
+    /* Add a black box shadow for focus */
+}
+
+button.leave-button {
+    background-color: transparent;
+    /* Transparent background */
+    border: none;
+    /* No border */
+    color: #3f85f8;
+    /* Default text color (blue) */
+    font-size: 16px;
+    /* Font size */
+    cursor: pointer;
+    /* Pointer cursor to indicate it's clickable */
+    padding: 10px 20px;
+    /* Padding around the button */
+    border-radius: 5px;
+    /* Rounded corners */
+    transition: background-color 0.3s, color 0.3s;
+    /* Smooth transition for background color and text color */
+    margin-bottom: 10px;
+}
+
+/* Hover effect for the leave button */
+button.leave-button:hover {
+    color: #ff004f;
+    /* Change text color to black on hover */
+
+}
+
+/* Focus effect for the leave button */
+button.leave-button:focus {
+    outline: none;
+    /* Remove the default outline */
+    box-shadow: 0 0 0px rgba(0, 0, 0, 0.7);
+    /* Add a black box shadow for focus */
+}
+
+/* Floating button */
+.ai-floating-button {
+    position: absolute;
+    right: -180px;
+    bottom: 0px;
+    background: linear-gradient(90deg, #3f51b5, #2196f3, #00acc1);
+    color: #fff;
+    padding: 12px 20px;
+    font-size: 14px;
+    font-weight: bold;
+    text-transform: uppercase;
+    border-radius: 50px;
+    text-decoration: none;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+    transition: all 0.3s ease;
+    z-index: 1;
+}
+
+/* Hover effect for the floating button */
+.ai-floating-button:hover {
+    background: linear-gradient(90deg, #00acc1, #2196f3, #3f51b5);
+    transform: translateY(0px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+}
+
+.ai-floating-button i {
+    margin-right: 10px;
+}
+
+.ai-text {
+    display: inline;
+}
+
+/* Popup styling */
+#name-popup {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+#name-popup .popup {
+    background: #fff;
+    padding: 30px;
+    border-radius: 10px;
+    width: 300px;
+    text-align: center;
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+}
+
+/* Hidden popup */
+.hidden {
+    display: none;
+}
+
+/* Genius chat message style */
+.genius-chat {
+    background-color: #d1e7ff;
+    /* Light blue background for Genius responses */
+    border-left: 5px solid #007bff;
+    /* Blue left border to highlight Genius */
+    color: #333;
+    /* Dark text for readability */
+    padding: 10px;
+    margin: 5px 0;
+    width: fit-content;
+    max-width: 80%;
+    font-style: italic;
+    /* Make text italic to indicate it’s from the bot */
+}
+
+/* Optional: Hover effect for messages */
+.chat-bubble:hover,
+.genius-chat:hover {
+    background-color: #e2e6ea;
+}
+
+@media only screen and (max-width: 900px) {
+    .send-button {
+        display: none;
+    }
+
+    /* Floating button */
+    .ai-floating-button {
+        right: -68px;
+        /* Position it near the right edge */
+        bottom: 0px;
+        /* Position it above the bottom edge */
+        padding: 10px 16px;
+        /* Reduce padding for better fit */
+        font-size: 12px;
+        /* Reduce font size */
+        z-index: 100;
+        /* Make sure it’s above other elements */
+        background: linear-gradient(90deg, #3f51b5, #2196f3, #00acc1);
+        color: transparent;
+        width: 16px;
+        /* Make the button smaller */
+        height: 25px;
+        /* Adjust for smaller screens */
+        border-radius: 50%;
+        line-height: 25px;
+        box-shadow: none;
+    }
+
+    .fas.fa-robot {
+        color: white;
+        font-size: 22px;
+        margin-left: -5.5px;
+
+    }
+
+    /* Popup styling for smaller screens */
+    #name-popup .popup {
+        width: 85%;
+        /* Make popup width responsive */
+        max-width: 350px;
+        /* Limit max width */
+        padding: 15px;
+        /* Adjust padding for smaller devices */
+    }
+
+    /* Adjust chat bubbles */
+    .chat-bubble {
+        padding: 8px;
+        /* Reduce padding for smaller screens */
+        font-size: 13px;
+        /* Make text size a bit smaller */
+    }
+
+    body {
+        height: auto;
+        /* Allows content to flow naturally on smaller screens */
+        overflow-y: auto;
+        /* Enables vertical scrolling if content exceeds screen height */
+        padding: 10px;
+        /* Adds padding for better spacing on smaller screens */
+        justify-content: flex-start;
+        /* Align content to the top for mobile layouts */
+        align-items: center;
+        /* Centers content horizontally */
+        background: white;
+    }
+
+
+    .container {
+        width: 100%;
+        /* Allow the container to take full width */
+        max-width: 100%;
+        /* Remove any max-width constraint */
+        padding: 10px;
+        /* Reduce padding for compact design */
+        height: 76vh;
+        /* Let the height adjust automatically to the content */
+        border-radius: 5px;
+        /* Slightly reduce the border radius */
+        box-shadow: none;
+        /* Remove box-shadow */
+        overflow: hidden;
+        /* Ensure no vertical scrolling */
+    }
+
+
+    .message-container {
+        display: flex;
+        align-items: center;
+        position: relative;
+        width: auto;
+        max-width: 78%;
+        border-radius: 20px;
+        padding: 0px;
+        background-color: #f7f7f7;
+        box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        transition: box-shadow 0.3s ease-in-out;
+        right: 0;
+        word-wrap: break-word;
+        overflow-wrap: break-word;
+        white-space: normal;
+        max-height: 150px;
+        padding-right: 10px;
+    }
+
+    /* Message Input Field Styling */
+    .message-input {
+        flex: 1;
+        font-size: 16px;
+        font-family: 'Arial', sans-serif;
+        color: #333;
+        background-color: transparent;
+        border: none;
+        outline: none;
+        border-radius: 25px;
+        transition: background-color 0.3s ease;
+        white-space: pre-wrap;
+        /* Ensures text wraps properly */
+        word-wrap: break-word;
+        /* Allows long words to break */
+        overflow-y: auto;
+        /* Enables scroll if content exceeds */
+    }
+
+
+    .message-input::placeholder {
+        color: #aaa;
+        /* Light gray for placeholder text */
+    }
+
+    header {
+        flex-direction: row;
+        /* Stack the header elements vertically */
+        align-items: center;
+        /* Center align the items */
+        padding: 10px;
+        margin-top: -10px;
+        /* Reset margin-top for better fit */
+        top: 0;
+    }
+
+    header h1 {
+        font-size: 24px;
+        /* Reduce font size */
+        margin-left: 0;
+        /* Remove left margin for better alignment */
+        margin-bottom: 0px;
+        /* Add margin at the bottom to space it out from other elements */
+        margin-top: 0;
+    }
+
+    header nav a {
+        margin-left: 10px;
+        /* Reduce left margin to make the links closer */
+        font-size: 14px;
+        /* Smaller font size for better fit */
+    }
+
+    header nav a:hover {
+        text-decoration: none;
+        /* Optional: Remove underline on hover for cleaner look */
+    }
+
+    .icon-btn {
+        color: #ff004f;
+        font-size: 24px;
+        /* Reduce the icon size */
+        margin-left: 0;
+        /* Remove left margin to align better */
+    }
+    .icon-btn:hover {
+        color: #ff004f;
+        transform:none;
+        /* Slight zoom effect */
+    }
+
+    h1 {
+        font-size: 21px;
+        text-align: center;
+        color: black;
+        margin-top: -5px;
+    }
+
+    h1 .room-code {
+        color: #3f85f8;
+        /* Tomato red color for the room code */
+        font-weight: 700;
+        /* Make the room code bolder */
+
+        letter-spacing: 1px;
+        /* Add slight spacing for emphasis */
+    }
+
+    button.history-button {
+        color: #ff004f;
+    }
+    button.leave-button{
+        color: #ff004f;
+    }
+
+    @media (hover:none) {
+        button.history-button:hover {
+            color: #ff004f;
+        }
+    }
+
+    button,
+    a,
+    i,
+    header h1 {
+        outline: none;
+        -webkit-tap-highlight-color: transparent;
+        /* Specific for mobile devices */
+    }
+    .submit:focus-visible {
+        outline: 2px solid black;
+        /* Highlight button on focus */
+    }
+    
+    .submit:hover {
+        background-color: black;
+        /* Darker blue on hover */
+    }
+}

@@ -1,0 +1,212 @@
+/* Importing Google Fonts */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'poppins', sans-serif;
+    height: auto;
+    
+   
+}
+.title{
+    text-align: center;
+    color: black;
+    padding: 40px 0;
+    font-weight: 600;
+    font-size: 2rem;
+    margin-top: 30px;
+    margin-bottom: 10px;
+    
+}
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: black;
+    color: #fff;
+    padding: 10px;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    z-index: 1000; /* Ensure it stays on top of other elements */
+}
+
+
+header h1 {
+    font-size: 24px;
+    user-select: none;
+    cursor: pointer;
+}
+
+header nav a {
+    color: #fff;
+    text-decoration: none;
+    margin-left: 15px;
+}
+
+header nav a:hover {
+    text-decoration: underline;
+}
+
+/* Table Styles */
+table {
+    width: 80%;
+    margin: 40px auto;
+    margin-top: -30px;
+    border-collapse: collapse;
+    background-color: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    overflow: hidden; /* To ensure rounded corners work */
+}
+
+/* Table Header */
+table th {
+    padding: 14px 20px;
+    text-align: center;
+    background-color: white;
+    color: #ff004f;
+    font-weight: 600;
+    font-size: 1.1rem;
+    text-transform: uppercase;
+    border: 1px solid #ddd;
+}
+
+/* Table Data */
+table td {
+    padding: 14px 20px;
+    text-align: center;
+    border: 1px solid #ddd;
+    background-color: white;
+    font-size: 1rem;
+}
+
+table td button {
+    background-color: black;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 14px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease, transform 0.2s ease;
+    outline: none;
+}
+
+/* Button Hover & Active State */
+table td button:hover {
+    background-color:#ff004f;
+    transform: translateY(-2px); /* Subtle lift effect */
+}
+
+table td button:active {
+    transform: translateY(0); /* Reset position when button is clicked */
+}
+
+/* Message for No Rooms Available */
+table td[colspan="3"] {
+    text-align: center;
+    font-style: italic;
+    color: #888;
+    padding: 20px;
+}
+
+::-webkit-scrollbar {
+    width: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background-color: #ff004f;
+}
+
+::-webkit-scrollbar-track {
+    background-color: white;
+}
+
+.icon-btn {
+    background-color: transparent; /* Button background color */
+    border: none; /* Remove default border */
+    color: white; /* Icon color */
+    font-size: 24px; /* Icon size */
+    cursor: pointer; /* Cursor pointer to indicate interactivity */
+    margin-right: 15px;
+    transition: background-color 0.3s, transform 0.3s; /* Smooth transition */
+    outline: none;
+  }
+  .icon-btn:last-child {
+    margin-right: 5px;
+  }
+  .icon-btn:hover {
+    color: #ff004f;
+    transform: scale(1.1); /* Slight zoom effect */
+  }
+ 
+  .loading-spinner {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background-color: rgba(0, 0, 0, 0.5);
+    color: #fff;
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 18px;
+    display: none; /* Initially hidden */
+    z-index: 9999; /* Ensure it appears above other elements */
+}
+footer {
+    background-color: black;
+    color: #fff;
+    text-align: center;
+    font-size: 14px;
+    padding: 10px;
+   position: fixed;
+    left: 0;
+    bottom: 0; /* Ensure the footer stays at the bottom */
+    width: 100%; /* Make sure the footer spans across the full width */
+    margin-top: 0; /* Remove negative margin */
+}
+
+@media only screen and (max-width:900px){
+    table {
+        width: 95%;
+    }
+
+    table th, table td {
+        padding: 10px;
+        font-size: 0.85rem;
+    }
+
+    h1 {
+        font-size: 1.3rem;
+    }
+    table td button {
+        background-color: black;
+        color: white;
+        border: none;
+        padding: 10px 20px;
+        cursor: pointer;
+        font-size: 14px;
+        border-radius: 4px;
+        transition: background-color 0.3s ease, transform 0.2s ease;
+        outline: none;
+    }
+    @media (hover:none){
+        table td button:hover {
+            background-color:black;
+            transform: translateY(-2px); /* Subtle lift effect */
+        }
+        table td button:active {
+            transform: translateY(0); /* Reset position when button is clicked */
+        }
+    }
+    button, a, i,header h1{
+        outline: none;
+        -webkit-tap-highlight-color: transparent; /* Specific for mobile devices */
+    }
+    .icon-btn{
+        color: #ff004f;
+    }
+}

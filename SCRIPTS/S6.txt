@@ -1,0 +1,14 @@
+Script 6: Rooftop
+Setting: A rooftop, where two characters are in a standoff. One is holding a weapon, the other is trying to talk their way out of it.
+
+Character 1: (Shouting)
+"You're not walking away from this! You don’t get to just disappear after everything you’ve done!"
+
+Character 2: (Trying to keep calm)
+"I didn’t mean for any of this to happen. Please, just listen to me. There’s a way out for both of us. Put the gun down."
+
+Character 1: (Shaking head, eyes filled with rage)
+"Too late for that. You should’ve thought about the consequences before you made me your enemy."
+
+Character 2: (Desperately)
+"You're making a mistake. This isn’t you. You don’t have to do this."

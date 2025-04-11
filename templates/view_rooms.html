@@ -1,0 +1,122 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Booked Rooms</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles4.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+</head>
+
+<body>
+    <header>
+        <h1 onclick="showLoadingSpinner(); setTimeout(function() { location.reload(); }, 100);">Scene Weaver</h1>
+        <nav>
+            <!-- Button styled as a Squarespace icon -->
+            <button id="backButton" class="icon-btn" onclick="showLoadingSpinner()">
+                <i class="fa-solid fa-angle-left"></i>
+            </button>
+
+        </nav>
+    </header>
+    <h1 class="title">Ongoing Sessions</h1>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Room Code</th>
+                <th>Genre</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for room in rooms %}
+            <tr>
+                <td>{{ room[0] }}</td>
+                <td>{{ room[1] }}</td>
+                <td>
+                    <!-- Button to release the room -->
+                    <form action="{{ url_for('release_room', room_code=room[0]) }}" method="GET">
+                        <button type="submit">Release Room</button>
+                    </form>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="3">No rooms booked yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+        <i class="fa-solid fa-spinner"></i>
+    </div>
+    <footer>
+        <p>&copy; 2025 Scene Weaver. All rights reserved.</p>
+    </footer>
+</body>
+<script>
+    document.getElementById('backButton').addEventListener('click', function () {
+        history.back(); // Navigates to the previous page
+    });
+    window.addEventListener('beforeunload', function (event) {
+        // Show the loading spinner when the page is unloading (e.g., refresh, navigate away)
+        showLoadingSpinner();
+    });
+
+    // Show the loading spinner
+    function showLoadingSpinner() {
+        const spinner = document.getElementById('loadingSpinner');
+        spinner.style.display = 'block';
+        spinner.classList.add('show-spinner'); // Add transition class for smooth appearance
+
+        // Set a flag in sessionStorage indicating that loading is in progress
+        sessionStorage.setItem('loading', 'true');
+    }
+
+    // Hide the loading spinner
+    function hideLoadingSpinner() {
+        const spinner = document.getElementById('loadingSpinner');
+        spinner.classList.remove('show-spinner'); // Remove transition class
+        spinner.style.display = 'none'; // Ensure it's hidden
+
+        // Reset loading state in sessionStorage
+        sessionStorage.removeItem('loading');
+    }
+
+    // Clear sessionStorage and hide spinner on page load
+    window.onload = function () {
+        // If sessionStorage has a loading flag, hide the spinner immediately
+        const loadingState = sessionStorage.getItem('loading');
+        if (loadingState) {
+            hideLoadingSpinner();
+        } else {
+            // Ensure spinner is hidden on initial load if no loading state exists
+            hideLoadingSpinner();
+        }
+    };
+    // Optional: Make sure the spinner hides immediately after the page loads
+    document.addEventListener('DOMContentLoaded', function () {
+        hideLoadingSpinner();
+    });
+
+    // Optional: Add setTimeout to ensure spinner hides after a few seconds (for testing)
+    setTimeout(hideLoadingSpinner, 2000); // Hide after 3 seconds for testing
+
+    // Example of async behavior (loading some data)
+    async function loadData() {
+        showLoadingSpinner();  // Show spinner when loading starts
+
+        // Simulate data loading (API or other async action)
+        await new Promise(resolve => setTimeout(resolve, 1000));  // Simulate 2 seconds of delay
+
+        hideLoadingSpinner();  // Hide spinner after loading is complete
+    }
+
+    // Example of loading data (call loadData() when data is being fetched, like on button click)
+    // loadData(); 
+</script>
+
+
+
+</html>

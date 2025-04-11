@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles2.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+    <title>Room Details</title>
+</head>
+
+<body>
+    <header>
+        <h1 onclick="showLoadingSpinner(); setTimeout(function() { location.reload(); }, 100);">Scene Weaver</h1>
+        <nav>
+            <!-- Button styled as a Squarespace icon -->
+            <a href="{{ url_for('home') }}" onclick="showLoadingSpinner()">
+                <button class="icon-btn">
+                    <i class="fa-solid fa-house"></i>
+                </button>
+            </a>
+        </nav>
+    </header>
+    <div class="container">
+        <h1 class="title">Room Created Successfully</h1>
+        <p><strong>Genre:</strong> {{ genre }}</p>
+        <p><strong>Room Code:</strong> <span class="room-code">{{ room_code }}</span></p>
+        <p>
+            <strong>Room URL:</strong>
+            <a href="#" class="room-link" onclick="copyToClipboard('{{ room_url }}'); return false;" id="room-url-link">{{ room_url }}</a>
+        </p>
+        
+        
+        <img src="{{ qr_code }}" alt="Room QR Code">
+        <a href="{{ room_url }}" class="button" onclick="showLoadingSpinner()">Join Room</a>
+    </div>
+    <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+        <i class="fa-solid fa-spinner"></i>
+    </div>
+    <footer>
+        <p class="footer">&copy; 2025 Scene Weaver. All rights reserved.</p>
+    </footer>
+</body>
+<script>
+
+    function copyToClipboard(url) {
+        if (navigator.clipboard) {
+            // Modern Clipboard API
+            navigator.clipboard.writeText(url).then(function () {
+                alert("URL copied to clipboard!");
+                
+                // Add 'copied' class for feedback
+                const link = document.getElementById("room-url-link");
+                link.classList.add("copied");
+
+                // Remove the 'copied' class after 2 seconds
+                setTimeout(() => {
+                    link.classList.remove("copied");
+                }, 2000);
+            }).catch(function (err) {
+                console.error("Failed to copy text: ", err);
+                alert("Failed to copy. Please try again.");
+            });
+        } else {
+            // Fallback for older browsers (execCommand)
+            var textArea = document.createElement('textarea');
+            textArea.value = url;
+            document.body.appendChild(textArea);
+            textArea.select();
+            try {
+                var successful = document.execCommand('copy');
+                if (successful) {
+                    alert("URL copied to clipboard!");
+                    
+                    // Add 'copied' class for feedback
+                    const link = document.getElementById("room-url-link");
+                    link.classList.add("copied");
+
+                    // Remove the 'copied' class after 2 seconds
+                    setTimeout(() => {
+                        link.classList.remove("copied");
+                    }, 2000);
+                } else {
+                    alert("Failed to copy.");
+                }
+            } catch (err) {
+                console.error("Fallback failed: ", err);
+                alert("Clipboard not supported!");
+            }
+            document.body.removeChild(textArea);
+        }
+    }
+    window.addEventListener('beforeunload', function (event) {
+        // Show the loading spinner when the page is unloading (e.g., refresh, navigate away)
+        showLoadingSpinner();
+    });
+
+    // Show the loading spinner
+    function showLoadingSpinner() {
+        const spinner = document.getElementById('loadingSpinner');
+        spinner.style.display = 'block';
+        spinner.classList.add('show-spinner'); // Add transition class for smooth appearance
+
+        // Set a flag in sessionStorage indicating that loading is in progress
+        sessionStorage.setItem('loading', 'true');
+    }
+
+    // Hide the loading spinner
+    function hideLoadingSpinner() {
+        const spinner = document.getElementById('loadingSpinner');
+        spinner.classList.remove('show-spinner'); // Remove transition class
+        spinner.style.display = 'none'; // Ensure it's hidden
+
+        // Reset loading state in sessionStorage
+        sessionStorage.removeItem('loading');
+    }
+
+    // Clear sessionStorage and hide spinner on page load
+    window.onload = function () {
+        // Reset loading state and hide spinner immediately when the home page is loaded
+        if (sessionStorage.getItem('loading')) {
+            sessionStorage.removeItem('loading');  // Remove loading state if exists
+        }
+
+        hideLoadingSpinner();  // Make sure spinner is hidden on page load
+    };
+
+    // Optional: Make sure the spinner hides immediately after the page loads
+    document.addEventListener('DOMContentLoaded', function () {
+        hideLoadingSpinner();
+    });
+
+    // Optional: Add setTimeout to ensure spinner hides after a few seconds (for testing)
+    setTimeout(hideLoadingSpinner, 2000); // Hide after 3 seconds for testing
+
+    // Example of async behavior (loading some data)
+    async function loadData() {
+        showLoadingSpinner();  // Show spinner when loading starts
+
+        // Simulate data loading (API or other async action)
+        await new Promise(resolve => setTimeout(resolve, 1000));  // Simulate 2 seconds of delay
+
+        hideLoadingSpinner();  // Hide spinner after loading is complete
+    }
+
+    // Example of loading data (call loadData() when data is being fetched, like on button click)
+    // loadData(); 
+</script>
+
+</html>
