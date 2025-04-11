@@ -848,6 +848,8 @@ if not os.path.exists("templates/error.html"):
 </html>
 ''')
 
+app = Flask(__name__)
+socketio = SocketIO(app, async_mode="gevent")
+
 if __name__ == "__main__":
-    # Use socketio.run() to handle both Flask app and SocketIO
-    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
+    socketio.run(app, host="0.0.0.0", port=10000)
