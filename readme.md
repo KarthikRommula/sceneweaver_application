@@ -4,6 +4,7 @@
 Scene Weaver ensures a smooth, unified writing experience, enhancing both productivity and creative quality.
 
 ---
+**PPT PRESENTATION UPLOADED IN REPO**
 
 **SCENE WEAVER WEB URL**: https://sceneweaver.onrender.com/
 ## 📌 Features
@@ -18,7 +19,11 @@ Scene Weaver ensures a smooth, unified writing experience, enhancing both produc
 - 💬 **Genius-AI**:Get on-demand help through the @Genius Bot, a built-in chatbot that offers:
 Answers to writing-related queries
 Scriptwriting recommendations
-- 🔐 **Genius AI Tool**:Leverage an advanced AI assistant for 1. Real-time script analysis.2. Intelligent enhancements. 3. Script editing.4. Draft comparison.
+- 🔐 **Genius AI Tool**:Leverage an advanced AI assistant for 
+1. Real-time script analysis.
+2. Intelligent enhancements.
+3. Script editing.
+4. Draft comparison.
 
 
 ---
@@ -55,7 +60,7 @@ Scriptwriting recommendations
 -`Difflib` : A Python library for comparing sequences, often used for text comparison or finding similarities.
 -`GroqAPI`: Likely referring to an API service for interacting with Groq, a company providing AI hardware solutions.
 ### Machine Learning & AI
--`Claude AI (Sonnet 3.5)`: Advanced AI model by Anthropic, known for context-aware, safe, and intelligent conversations and content generation.
+-`Claude AI (Sonnet 3.5)`: Advanced AI model by Anthropic, known for context-aware, safe, and intelligent conversations and content generation
 -`Llama 3`: Likely referring to a model or version of Llama, an open-source large language model developed by Meta (formerly Facebook).
 
 ### Web Application
@@ -96,8 +101,8 @@ Scriptwriting recommendations
 ### SCENE WEAVER 
 
 ```bash
+### SCENE WEAVER - COLLABORATION PLATFORM
 git clone https://github.com/KarthikRommula/sceneweaver_application.git
-cd scene-weaver
 
 ### SCENE WEAVER - GENIUS AI TOOL
 ```bash
