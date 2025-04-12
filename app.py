@@ -230,12 +230,9 @@ def project_details(project_id):
     
     if project:
         # Redirect to a dynamic URL based on the project ID using url_for
-        return redirect(url_for('join_room_page', room_code=project_id, _external=True))
+        return redirect(url_for('join_room_page', room_code="7THIMA", _external=True))
     else:
         return "Project not found", 404
-
-# Search API
-@app.route("/search", methods=["POST"])
 def search():
     query = request.json.get("query", "").lower()
     filtered_projects = [proj for proj in projects if query in proj["title"].lower() or query in proj["description"].lower()]
@@ -372,8 +369,11 @@ def join_room_page(room_code):
             if not username:
                 # If no username in URL, check if we can get it from active_users
                 for user_id, user_data in active_users.items():
-                    if user_data.get('room') == room_code:
+                    if isinstance(user_data, dict) and user_data.get('room') == room_code:
                         username = user_data.get('username', '')
+                        break
+                    elif isinstance(user_data, list) and len(user_data) >= 2 and user_data[0] == room_code:
+                        username = user_data[1]
                         break
             
             # If still no username, use a default
@@ -848,8 +848,6 @@ if not os.path.exists("templates/error.html"):
 </html>
 ''')
 
-app = Flask(__name__)
-socketio = SocketIO(app, async_mode="gevent")
-
 if __name__ == "__main__":
-    socketio.run(app, host="0.0.0.0", port=10000)
+    # Use socketio.run() to handle both Flask app and SocketIO
+    socketio.run(app, host="0.0.0.0", port=5000, debug=True)
